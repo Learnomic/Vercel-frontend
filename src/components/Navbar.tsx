@@ -1,5 +1,6 @@
 import React from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
+import logo from '../assets/learnomic.png';
 
 const Navbar: React.FC = () => {
   // Define the active and inactive styles
@@ -12,11 +13,12 @@ const Navbar: React.FC = () => {
   };
 
   return (
-    <header className="bg-white shadow-sm">
+    <header className="bg-gradient-to-r from-blue-50 via-white to-green-50 shadow-sm backdrop-blur-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
-          <div className="flex-shrink-0 flex items-center">
-            <Link to="/" className="text-xl font-bold text-indigo-600">Learnomic</Link>
+          <div className="flex-shrink-0 flex items-center space-x-2">
+            <img src={logo} alt="Learnomic Logo" className="w-36" />
+            {/* <Link to="/" className="text-xl font-bold text-indigo-600">Learnomic</Link> */}
           </div>
           <nav className="flex space-x-4">
             <NavLink to="/" className={navLinkClasses}>
