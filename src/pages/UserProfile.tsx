@@ -52,7 +52,7 @@ const UserProfile: React.FC = () => {
             <button
               type="button"
               onClick={() => setIsEditing(true)}
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              className="btn-gradient px-4 py-2 text-sm font-medium"
             >
               Edit Profile
             </button>
@@ -147,7 +147,7 @@ const UserProfile: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  className="btn-gradient px-4 py-2 text-sm font-medium"
                 >
                   Save
                 </button>

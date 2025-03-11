@@ -146,7 +146,7 @@ const BoardSelection: React.FC = () => {
         {currentStep === totalSteps && selectedGrade ? (
           <Link
             to={`/subjects?board=${selectedBoard}&grade=${selectedGrade}`}
-            className="px-6 py-3 bg-indigo-600 text-white rounded-md font-medium hover:bg-indigo-700"
+            className="btn-gradient px-6 py-3 font-medium"
           >
             View Subjects
           </Link>
@@ -154,11 +154,10 @@ const BoardSelection: React.FC = () => {
           <button
             onClick={handleNext}
             disabled={!selectedBoard}
-            className={`px-6 py-3 rounded-md font-medium ${
-              selectedBoard
-                ? 'bg-indigo-600 text-white hover:bg-indigo-700'
-                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-            }`}
+            className={selectedBoard
+              ? "btn-gradient px-6 py-3 font-medium"
+              : "px-6 py-3 rounded-md font-medium bg-gray-300 text-gray-500 cursor-not-allowed"
+            }
           >
             Next
           </button>

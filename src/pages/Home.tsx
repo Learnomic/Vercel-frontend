@@ -7,7 +7,7 @@ const Home: React.FC = () => {
   return (
     <div className="space-y-12">
       <section 
-        className="h-[90vh] py-10 bg-cover bg-center relative flex items-center"
+        className="h-screen py-10 bg-cover bg-center relative flex items-center"
         style={{ backgroundImage: `url(${educationImage})` }}
       >
         <div className="absolute inset-0 bg-black opacity-50"></div>
@@ -32,7 +32,7 @@ const Home: React.FC = () => {
           <div className="mt-8 flex justify-center space-x-4">
             <Link
               to="/start-learning"
-              className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white "
+              className="btn-gradient px-6 py-3 text-base font-medium"
             >
               Start Learning
             </Link>
@@ -57,7 +57,7 @@ const Home: React.FC = () => {
           </p>
           <Link
             to="/signup"
-            className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            className="btn-gradient px-6 py-3 text-base font-medium"
           >
             Get Started Today
           </Link>

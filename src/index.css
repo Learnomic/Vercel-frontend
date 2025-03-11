@@ -1,1 +1,23 @@
 @import "tailwindcss";
+
+@layer components {
+  .btn-gradient {
+    @apply relative inline-flex items-center justify-center px-4 py-2 overflow-hidden font-medium text-white rounded-md shadow-md;
+    background: linear-gradient(90deg, #1D2160 0%, #0EA9E1 100%);
+    transition: all 0.3s ease;
+  }
+  
+  .btn-gradient:hover {
+    background: linear-gradient(90deg, #1D2160 20%, #0EA9E1 100%);
+    @apply shadow-lg;
+  }
+  
+  .btn-gradient:focus {
+    @apply outline-none ring-2 ring-offset-2 ring-blue-400;
+  }
+  
+  .btn-gradient:disabled {
+    @apply opacity-70 cursor-not-allowed;
+    background: linear-gradient(90deg, #1D2160 0%, #0EA9E1 100%);
+  }
+}

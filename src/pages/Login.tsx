@@ -180,7 +180,7 @@ const Login: React.FC = () => {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="flex w-full justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-70"
+                  className="btn-gradient w-full py-2 px-4 text-sm font-medium disabled:opacity-70"
                 >
                   {isLoading ? 'Signing in...' : 'Sign in'}
                 </button>
