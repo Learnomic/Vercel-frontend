@@ -1,24 +1,25 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { FaUniversity, FaGraduationCap, FaSchool } from 'react-icons/fa';
 
 const boards = [
   {
     id: 'cbse',
     name: 'CBSE',
     description: 'Central Board of Secondary Education',
-    logo: '🏛️',
+    logo: <FaUniversity className="text-indigo-600" />,
   },
   {
     id: 'icse',
     name: 'ICSE',
     description: 'Indian Certificate of Secondary Education',
-    logo: '🎓',
+    logo: <FaGraduationCap className="text-indigo-600" />,
   },
   {
     id: 'state',
     name: 'State Board',
     description: 'State Board of Education',
-    logo: '🏫',
+    logo: <FaSchool className="text-indigo-600" />,
   },
 
 ];
@@ -56,14 +57,14 @@ const BoardSelection: React.FC = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
       {/* Progress Bar */}
-      <div className="mb-8">
+      <div className="mb-6 sm:mb-8">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-medium text-gray-500">
+          <span className="text-xs sm:text-sm font-medium text-gray-500">
             Step {currentStep} of {totalSteps}
           </span>
-          <span className="text-sm font-medium text-indigo-600">
+          <span className="text-xs sm:text-sm font-medium text-indigo-600">
             {currentStep === 1 ? 'Select Board' : 'Select Grade'}
           </span>
         </div>
@@ -76,53 +77,53 @@ const BoardSelection: React.FC = () => {
       </div>
 
       {currentStep === 1 ? (
-        <div className="space-y-8">
+        <div className="space-y-6 sm:space-y-8">
           <div className="text-center">
-            <h1 className="text-3xl font-bold text-gray-900">Select Your Board</h1>
-            <p className="mt-4 text-lg text-gray-600">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Select Your Board</h1>
+            <p className="mt-2 sm:mt-4 text-base sm:text-lg text-gray-600">
               Choose your education board to get personalized learning content
             </p>
           </div>
 
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {boards.map((board) => (
               <button
                 key={board.id}
                 onClick={() => handleBoardSelect(board.id)}
-                className={`p-6 rounded-lg shadow-md transition-all duration-300 text-left ${
+                className={`p-4 sm:p-6 rounded-lg shadow-md transition-all duration-300 text-left ${
                   selectedBoard === board.id
                     ? 'bg-indigo-50 border-2 border-indigo-500 ring-2 ring-indigo-500 ring-opacity-50'
                     : 'bg-white hover:shadow-lg border-2 border-transparent'
                 }`}
               >
-                <div className="text-4xl mb-4">{board.logo}</div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">{board.name}</h3>
-                <p className="text-gray-600">{board.description}</p>
+                <div className="text-3xl sm:text-4xl mb-3 sm:mb-4">{board.logo}</div>
+                <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-1 sm:mb-2">{board.name}</h3>
+                <p className="text-sm sm:text-base text-gray-600">{board.description}</p>
               </button>
             ))}
           </div>
         </div>
       ) : (
-        <div className="space-y-8">
+        <div className="space-y-6 sm:space-y-8">
           <div className="text-center">
-            <h1 className="text-3xl font-bold text-gray-900">Select Your Grade</h1>
-            <p className="mt-4 text-lg text-gray-600">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Select Your Grade</h1>
+            <p className="mt-2 sm:mt-4 text-base sm:text-lg text-gray-600">
               Choose your current grade level
             </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
             {grades.map((grade) => (
               <button
                 key={grade.id}
                 onClick={() => handleGradeSelect(grade.id)}
-                className={`p-4 rounded-lg shadow-md transition-all duration-300 ${
+                className={`p-3 sm:p-4 rounded-lg shadow-md transition-all duration-300 ${
                   selectedGrade === grade.id
                     ? 'bg-indigo-50 border-2 border-indigo-500 ring-2 ring-indigo-500 ring-opacity-50'
                     : 'bg-white hover:shadow-lg border-2 border-transparent'
                 }`}
               >
-                <h3 className="text-lg font-semibold text-center text-gray-900">
+                <h3 className="text-base sm:text-lg font-semibold text-center text-gray-900">
                   {grade.name}
                 </h3>
               </button>
@@ -131,10 +132,10 @@ const BoardSelection: React.FC = () => {
         </div>
       )}
 
-      <div className="mt-8 flex justify-between">
+      <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row justify-between space-y-3 sm:space-y-0">
         <button
           onClick={handleBack}
-          className={`px-6 py-3 rounded-md font-medium ${
+          className={`px-4 sm:px-6 py-2 sm:py-3 rounded-md text-sm sm:text-base font-medium ${
             currentStep === 1
               ? 'invisible'
               : 'text-gray-700 bg-gray-100 hover:bg-gray-200'
@@ -146,7 +147,7 @@ const BoardSelection: React.FC = () => {
         {currentStep === totalSteps && selectedGrade ? (
           <Link
             to={`/subjects?board=${selectedBoard}&grade=${selectedGrade}`}
-            className="btn-gradient px-6 py-3 font-medium"
+            className="btn-gradient px-4 sm:px-6 py-2 sm:py-3 rounded-md text-sm sm:text-base font-medium text-center sm:text-left"
           >
             View Subjects
           </Link>
@@ -154,10 +155,11 @@ const BoardSelection: React.FC = () => {
           <button
             onClick={handleNext}
             disabled={!selectedBoard}
-            className={selectedBoard
-              ? "btn-gradient px-6 py-3 font-medium"
-              : "px-6 py-3 rounded-md font-medium bg-gray-300 text-gray-500 cursor-not-allowed"
-            }
+            className={`px-4 sm:px-6 py-2 sm:py-3 rounded-md text-sm sm:text-base font-medium ${
+              selectedBoard
+                ? 'btn-gradient'
+                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+            }`}
           >
             Next
           </button>

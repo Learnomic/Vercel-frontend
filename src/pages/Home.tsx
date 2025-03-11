@@ -1,44 +1,53 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Features from '../components/Features';
 import educationImage from '../assets/education.jpg';
+import mobileImage from '../assets/mobileImg.jpg';
 
 const Home: React.FC = () => {
+  const [backgroundImage, setBackgroundImage] = useState(educationImage);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setBackgroundImage(window.innerWidth < 640 ? mobileImage : educationImage);
+    };
+    
+    // Set initial background image
+    handleResize();
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   return (
-    <div className="space-y-12">
+    <div className="space-y-8 sm:space-y-12">
       <section 
-        className="h-screen py-10 bg-cover bg-center relative flex items-center"
-        style={{ backgroundImage: `url(${educationImage})` }}
+        className="min-h-[100vh] sm:min-h-[80vh] sm:h-screen py-8 sm:py-10 bg-cover bg-center relative flex items-center justify-center text-center"
+        style={{ 
+          backgroundImage: `url(${backgroundImage})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
+        }}
       >
         <div className="absolute inset-0 bg-black opacity-50"></div>
-        <div className="text-center relative z-10 w-full">
-            <style>
-          {`
-            .brand-gradient-text {
-              background: linear-gradient(90deg, #87D031 0%, #0EA9E1 50%, #B437B9 100%);
-              -webkit-background-clip: text;
-              -webkit-text-fill-color: transparent;
-              background-clip: text;
-              text-fill-color: transparent;
-            }
-          `}
-        </style>
-          <h1 className="text-4xl font-extrabold text-white sm:text-5xl sm:tracking-tight lg:text-6xl ">
+        <div className="relative z-10 w-full px-4 sm:px-6 lg:px-8">
+          <h1 className="text-3xl font-extrabold text-white sm:text-4xl md:text-5xl lg:text-6xl">
             Welcome to Learnomic
           </h1>
-          <p className="mt-5 max-w-xl mx-auto text-xl text-gray-200">
+          <p className="mt-3 sm:mt-5 max-w-xl mx-auto text-base sm:text-lg md:text-xl text-gray-200">
             Your platform for continuous learning and growth
           </p>
-          <div className="mt-8 flex justify-center space-x-4">
+          <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
             <Link
               to="/start-learning"
-              className="btn-gradient px-6 py-3 text-base font-medium"
+              className="btn-gradient px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base font-medium rounded-md shadow-md hover:shadow-lg transition-all duration-300"
             >
               Start Learning
             </Link>
             <Link
-              to="/signup" 
-              className="inline-flex items-center px-6 py-3 border border-gray-300 text-base font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              to="/signup"
+              className="bg-white text-indigo-600 px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base font-medium rounded-md shadow-md hover:shadow-lg hover:bg-gray-50 transition-all duration-300"
             >
               Sign Up Now
             </Link>
@@ -46,23 +55,28 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      <Features />
-
-      <section className="bg-white shadow rounded-lg p-8 max-w-3xl mx-auto">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Ready to Start Learning?</h2>
-          <p className="text-gray-600 mb-6">
-            Join thousands of learners who have already taken the first step towards their goals.
-            Get access to expert-led courses, interactive exercises, and a supportive community.
-          </p>
-          <Link
-            to="/signup"
-            className="btn-gradient px-6 py-3 text-base font-medium"
-          >
-            Get Started Today
-          </Link>
+      <section className="py-8 sm:py-12 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">
+              Start Your Learning Journey Today
+            </h2>
+            <p className="mt-3 sm:mt-4 max-w-2xl mx-auto text-base sm:text-lg text-gray-600">
+              Explore our comprehensive curriculum designed to help you excel in your studies.
+            </p>
+            <div className="mt-6 sm:mt-8">
+              <Link
+                to="/start-learning"
+                className="btn-gradient px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base font-medium rounded-md shadow-md hover:shadow-lg transition-all duration-300"
+              >
+                Get Started Today
+              </Link>
+            </div>
+          </div>
         </div>
       </section>
+
+      <Features />
     </div>
   );
 };
