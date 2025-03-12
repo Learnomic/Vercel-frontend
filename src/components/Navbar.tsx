@@ -1,19 +1,26 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import logo from '../assets/learnomic.png';
-import { FaUserCircle, FaSignOutAlt } from 'react-icons/fa';
+import { FaUserCircle, FaSignOutAlt, FaCog } from 'react-icons/fa';
 
 const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userData, setUserData] = useState<{ name: string; email: string; grade: string } | null>(null);
   const navigate = useNavigate();
+  const profileRef = useRef<HTMLDivElement>(null);
 
   // Prevent scrolling when mobile menu is open
   useEffect(() => {
     // Check if user is logged in (you can replace this with your actual auth check)
     const checkAuth = () => {
       const token = localStorage.getItem('token');
+      const userStr = localStorage.getItem('user');
       setIsLoggedIn(!!token);
+      if (userStr) {
+        setUserData(JSON.parse(userStr));
+      }
     };
     
     checkAuth();
@@ -29,8 +36,10 @@ const Navbar: React.FC = () => {
   }, [isMenuOpen]);
 
   const handleLogout = () => {
-    localStorage.removeItem('token'); // Remove auth token
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
     setIsLoggedIn(false);
+    setIsProfileOpen(false);
     navigate('/');
   };
 
@@ -86,19 +95,54 @@ const Navbar: React.FC = () => {
               Subjects
             </NavLink>
             {isLoggedIn ? (
-              <>
-                <NavLink to="/profile" className={navLinkClasses}>
-                  <FaUserCircle className="inline-block mr-1" />
-                  Profile
-                </NavLink>
+              <div className="relative" ref={profileRef}>
                 <button
-                  onClick={handleLogout}
-                  className="inline-flex items-center px-3 py-2 rounded-md text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50"
+                  onClick={() => setIsProfileOpen(!isProfileOpen)}
+                  className="flex items-center justify-center w-8 h-8 rounded-full bg-[#8AB4F8] text-white font-medium text-lg hover:bg-opacity-90 focus:outline-none"
                 >
-                  <FaSignOutAlt className="mr-1" />
-                  Logout
+                  {userData?.name.charAt(0).toUpperCase()}
                 </button>
-              </>
+
+                {isProfileOpen && (
+                  <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 divide-y divide-gray-100">
+                    <div className="p-4">
+                      <div className="flex items-center space-x-3">
+                        <div className="flex-shrink-0">
+                          <div className="w-12 h-12 rounded-full bg-[#8AB4F8] flex items-center justify-center text-white text-2xl font-medium">
+                            {userData?.name.charAt(0).toUpperCase()}
+                          </div>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-gray-900 truncate">
+                            {userData?.name}
+                          </p>
+                          <p className="text-sm text-gray-500 truncate">
+                            {userData?.email}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="p-2">
+                      <Link
+                        to="/profile"
+                        className="group flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md"
+                        onClick={() => setIsProfileOpen(false)}
+                      >
+                        <FaCog className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500" />
+                        Manage your Account
+                      </Link>
+                      <button
+                        onClick={handleLogout}
+                        className="group flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md"
+                      >
+                        <FaSignOutAlt className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500" />
+                        Sign out
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             ) : (
               <>
                 <NavLink to="/login" className={navLinkClasses}>
@@ -150,7 +194,7 @@ const Navbar: React.FC = () => {
             }
             end
             onClick={() => setIsMenuOpen(false)}
-          >
+          > 
             Home
           </NavLink>
           <NavLink 
@@ -186,7 +230,7 @@ const Navbar: React.FC = () => {
                 className="w-full text-left px-3 py-3 rounded-md text-base font-medium text-red-600 hover:text-red-700 hover:bg-red-50"
               >
                 <FaSignOutAlt className="inline-block mr-2" />
-                Logout
+                Sign out
               </button>
             </>
           ) : (

@@ -16,7 +16,7 @@ const SignUp: React.FC = () => {
     email: "",
     password: "",
     confirmPassword: "",
-    grade: "1", // Default grade
+    grade: "", // Default grade
     terms: false // Add terms field
   });
   const [error, setError] = useState("");
@@ -154,7 +154,7 @@ const SignUp: React.FC = () => {
                     type="text"
                     autoComplete="name"
                     required
-                    placeholder="Full name"
+                    placeholder="Student Name"
                     value={formData.name}
                     onChange={handleChange}
                     disabled={isLoading}

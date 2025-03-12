@@ -1,29 +1,65 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 interface UserData {
   name: string;
   email: string;
-  bio: string;
-  location: string;
-  website: string;
-  avatar: string;
+  grade: string;
+  board: string;
 }
 
 const UserProfile: React.FC = () => {
-  // Mock user data - in a real app, this would come from an API or context
+  const navigate = useNavigate();
   const [userData, setUserData] = useState<UserData>({
-    name: 'John Doe',
-    email: 'john.doe@example.com',
-    bio: 'Software developer passionate about web technologies and learning new skills.',
-    location: 'San Francisco, CA',
-    website: 'https://johndoe.dev',
-    avatar: 'https://randomuser.me/api/portraits/men/1.jpg',
+    name: '',
+    email: '',
+    grade: '',
+    board: ''
   });
-
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState<UserData>(userData);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        navigate('/login');
+        return;
+      }
+
+      try {
+        const response = await axios.get('http://localhost:5000/api/user/profile', {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        
+        // Extract only the fields we want to display
+        const { name, email, grade, board } = response.data;
+        const profileData = { name, email, grade, board };
+        
+        setUserData(profileData);
+        setFormData(profileData);
+        setError('');
+      } catch (err: any) {
+        if (err.response?.status === 401) {
+          localStorage.removeItem('token');
+          navigate('/login');
+        } else {
+          setError('Failed to load profile data. Please try again later.');
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchUserProfile();
+  }, [navigate]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -31,14 +67,60 @@ const UserProfile: React.FC = () => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setUserData(formData);
-    setIsEditing(false);
-    // In a real app, you would send this data to an API
-    console.log('Profile updated with:', formData);
-    alert('Profile updated successfully! (This is just a demo)');
+    setIsLoading(true);
+    setError('');
+
+    const updateData = {
+      name: formData.name,
+      email: formData.email,
+      grade: formData.grade,
+      board: formData.board
+    };
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.put('http://localhost:5000/api/user/profile', updateData, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      
+      // Extract only the fields we want to display
+      const { name, email, grade, board } = response.data;
+      const profileData = { name, email, grade, board };
+      
+      setUserData(profileData);
+      setIsEditing(false);
+      localStorage.setItem('user', JSON.stringify(profileData));
+    } catch (err: any) {
+      if (err.response?.status === 401) {
+        localStorage.removeItem('token');
+        navigate('/login');
+      } else {
+        setError('Failed to update profile. Please try again later.');
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
+
+  if (isLoading) {
+    return (
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+        <div className="bg-white shadow overflow-hidden sm:rounded-lg p-6">
+          <div className="animate-pulse flex flex-col space-y-4">
+            <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+            <div className="space-y-3">
+              <div className="h-4 bg-gray-200 rounded"></div>
+              <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
@@ -46,17 +128,23 @@ const UserProfile: React.FC = () => {
         <div className="px-4 py-5 sm:px-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0">
           <div>
             <h3 className="text-lg leading-6 font-medium text-gray-900">User Profile</h3>
-            <p className="mt-1 max-w-2xl text-sm text-gray-500">Personal details and preferences</p>
+            <p className="mt-1 max-w-2xl text-sm text-gray-500">Your account information</p>
           </div>
           {!isEditing && (
             <button
               onClick={() => setIsEditing(true)}
-              className="btn-gradient px-4 py-2 text-sm font-medium rounded-md shadow-sm"
+              className="bg-gradient-to-r from-[#1D2160] to-[#0EA9E1] px-4 py-2 text-sm font-medium text-white rounded-md shadow-sm"
             >
               Edit Profile
             </button>
           )}
         </div>
+
+        {error && (
+          <div className="px-4 py-3 bg-red-50 border-l-4 border-red-400 text-red-700">
+            <p>{error}</p>
+          </div>
+        )}
         
         {!isEditing ? (
           <div className="border-t border-gray-200">
@@ -70,26 +158,12 @@ const UserProfile: React.FC = () => {
                 <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{userData.email}</dd>
               </div>
               <div className="bg-gray-50 px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                <dt className="text-sm font-medium text-gray-500">Bio</dt>
-                <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{userData.bio}</dd>
+                <dt className="text-sm font-medium text-gray-500">Grade</dt>
+                <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{userData.grade}</dd>
               </div>
               <div className="bg-white px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                <dt className="text-sm font-medium text-gray-500">Location</dt>
-                <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{userData.location}</dd>
-              </div>
-              <div className="bg-gray-50 px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                <dt className="text-sm font-medium text-gray-500">Website</dt>
-                <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-                  <a href={userData.website} className="text-indigo-600 hover:text-indigo-500" target="_blank" rel="noopener noreferrer">
-                    {userData.website}
-                  </a>
-                </dd>
-              </div>
-              <div className="bg-white px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                <dt className="text-sm font-medium text-gray-500">Profile picture</dt>
-                <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-                  <img src={userData.avatar} alt={userData.name} className="h-20 w-20 rounded-full" />
-                </dd>
+                <dt className="text-sm font-medium text-gray-500">Board</dt>
+                <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{userData.board}</dd>
               </div>
             </dl>
           </div>
@@ -106,7 +180,8 @@ const UserProfile: React.FC = () => {
                   id="name"
                   value={formData.name}
                   onChange={handleChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm sm:text-base"
+                  disabled={isLoading}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0EA9E1] focus:ring-[#0EA9E1] sm:text-sm"
                 />
               </div>
               
@@ -120,67 +195,39 @@ const UserProfile: React.FC = () => {
                   id="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm sm:text-base"
+                  disabled={isLoading}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0EA9E1] focus:ring-[#0EA9E1] sm:text-sm"
                 />
               </div>
               
               <div>
-                <label htmlFor="bio" className="block text-sm font-medium text-gray-700">
-                  Bio
-                </label>
-                <textarea
-                  name="bio"
-                  id="bio"
-                  rows={3}
-                  value={formData.bio}
-                  onChange={handleChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm sm:text-base"
-                />
-              </div>
-              
-              <div>
-                <label htmlFor="location" className="block text-sm font-medium text-gray-700">
-                  Location
+                <label htmlFor="grade" className="block text-sm font-medium text-gray-700">
+                  Grade
                 </label>
                 <input
                   type="text"
-                  name="location"
-                  id="location"
-                  value={formData.location}
+                  name="grade"
+                  id="grade"
+                  value={formData.grade}
                   onChange={handleChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm sm:text-base"
+                  disabled={isLoading}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0EA9E1] focus:ring-[#0EA9E1] sm:text-sm"
                 />
               </div>
-              
+
               <div>
-                <label htmlFor="website" className="block text-sm font-medium text-gray-700">
-                  Website
+                <label htmlFor="board" className="block text-sm font-medium text-gray-700">
+                  Board
                 </label>
                 <input
-                  type="url"
-                  name="website"
-                  id="website"
-                  value={formData.website}
+                  type="text"
+                  name="board"
+                  id="board"
+                  value={formData.board}
                   onChange={handleChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm sm:text-base"
+                  disabled={isLoading}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0EA9E1] focus:ring-[#0EA9E1] sm:text-sm"
                 />
-              </div>
-              
-              <div>
-                <label htmlFor="avatar" className="block text-sm font-medium text-gray-700">
-                  Profile picture URL
-                </label>
-                <input
-                  type="url"
-                  name="avatar"
-                  id="avatar"
-                  value={formData.avatar}
-                  onChange={handleChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm sm:text-base"
-                />
-                <div className="mt-2">
-                  <img src={formData.avatar} alt="Preview" className="h-20 w-20 rounded-full" />
-                </div>
               </div>
               
               <div className="flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-3 pt-4">
@@ -190,15 +237,17 @@ const UserProfile: React.FC = () => {
                     setIsEditing(false);
                     setFormData(userData);
                   }}
-                  className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  disabled={isLoading}
+                  className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0EA9E1] disabled:opacity-50"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="btn-gradient px-4 py-2 text-sm font-medium rounded-md shadow-sm"
+                  disabled={isLoading}
+                  className="bg-gradient-to-r from-[#1D2160] to-[#0EA9E1] px-4 py-2 text-sm font-medium text-white rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0EA9E1] disabled:opacity-50"
                 >
-                  Save
+                  {isLoading ? 'Saving...' : 'Save'}
                 </button>
               </div>
             </form>
