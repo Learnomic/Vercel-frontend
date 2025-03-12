@@ -1,45 +1,29 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
 
 interface UserData {
   name: string;
   email: string;
-  grade: string;
+  bio: string;
+  location: string;
+  website: string;
+  avatar: string;
 }
 
 const UserProfile: React.FC = () => {
-  const navigate = useNavigate();
+  // Mock user data - in a real app, this would come from an API or context
   const [userData, setUserData] = useState<UserData>({
-    name: '',
-    email: '',
-    grade: ''
+    name: 'John Doe',
+    email: 'john.doe@example.com',
+    bio: 'Software developer passionate about web technologies and learning new skills.',
+    location: 'San Francisco, CA',
+    website: 'https://johndoe.dev',
+    avatar: 'https://randomuser.me/api/portraits/men/1.jpg',
   });
+
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState<UserData>(userData);
 
-  useEffect(() => {
-    // Get user data from localStorage
-    const userStr = localStorage.getItem('user');
-    if (!userStr) {
-      // If no user data, redirect to login
-      navigate('/login');
-      return;
-    }
-    
-    const user = JSON.parse(userStr);
-    setUserData({
-      name: user.name || '',
-      email: user.email || '',
-      grade: user.grade || ''
-    });
-    setFormData({
-      name: user.name || '',
-      email: user.email || '',
-      grade: user.grade || ''
-    });
-  }, [navigate]);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -51,29 +35,24 @@ const UserProfile: React.FC = () => {
     e.preventDefault();
     setUserData(formData);
     setIsEditing(false);
-    
-    // Update user data in localStorage
-    const userStr = localStorage.getItem('user');
-    if (userStr) {
-      const user = JSON.parse(userStr);
-      const updatedUser = { ...user, ...formData };
-      localStorage.setItem('user', JSON.stringify(updatedUser));
-    }
+    // In a real app, you would send this data to an API
+    console.log('Profile updated with:', formData);
+    alert('Profile updated successfully! (This is just a demo)');
   };
 
   return (
-    <div className="max-w-3xl mx-auto p-4">
-      <div className="bg-white shadow-[0_4px_20px_rgba(0,0,0,0.15)] overflow-hidden rounded-3xl">
+    <div className="max-w-3xl mx-auto">
+      <div className="bg-white shadow overflow-hidden sm:rounded-lg">
         <div className="px-4 py-5 sm:px-6 flex justify-between items-center">
           <div>
-            <h3 className="text-2xl font-bold tracking-tight text-gray-900">Student Profile</h3>
-            <p className="mt-1 max-w-2xl text-sm text-gray-600">Your personal information</p>
+            <h3 className="text-lg leading-6 font-medium text-gray-900">User Profile</h3>
+            <p className="mt-1 max-w-2xl text-sm text-gray-500">Personal details and preferences</p>
           </div>
           {!isEditing && (
             <button
               type="button"
               onClick={() => setIsEditing(true)}
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-gradient-to-r from-[#1D2160] to-[#0EA9E1] focus:outline-none focus:ring-2 focus:ring-[#0EA9E1] focus:ring-offset-2"
+              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
               Edit Profile
             </button>
@@ -94,7 +73,7 @@ const UserProfile: React.FC = () => {
                     id="name"
                     value={formData.name}
                     onChange={handleChange}
-                    className="mt-1 block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 text-gray-900 shadow-sm focus:border-[#0EA9E1] focus:outline-none focus:ring-1 focus:ring-[#0EA9E1] sm:text-sm"
+                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   />
                 </div>
 
@@ -108,21 +87,49 @@ const UserProfile: React.FC = () => {
                     id="email"
                     value={formData.email}
                     onChange={handleChange}
-                    className="mt-1 block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 text-gray-900 shadow-sm focus:border-[#0EA9E1] focus:outline-none focus:ring-1 focus:ring-[#0EA9E1] sm:text-sm"
+                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  />
+                </div>
+
+                <div className="col-span-6">
+                  <label htmlFor="bio" className="block text-sm font-medium text-gray-700">
+                    Bio
+                  </label>
+                  <textarea
+                    id="bio"
+                    name="bio"
+                    rows={3}
+                    value={formData.bio}
+                    onChange={handleChange}
+                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   />
                 </div>
 
                 <div className="col-span-6 sm:col-span-3">
-                  <label htmlFor="grade" className="block text-sm font-medium text-gray-700">
-                    Grade
+                  <label htmlFor="location" className="block text-sm font-medium text-gray-700">
+                    Location
                   </label>
                   <input
                     type="text"
-                    name="grade"
-                    id="grade"
-                    value={formData.grade}
+                    name="location"
+                    id="location"
+                    value={formData.location}
                     onChange={handleChange}
-                    className="mt-1 block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 text-gray-900 shadow-sm focus:border-[#0EA9E1] focus:outline-none focus:ring-1 focus:ring-[#0EA9E1] sm:text-sm"
+                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  />
+                </div>
+
+                <div className="col-span-6 sm:col-span-3">
+                  <label htmlFor="website" className="block text-sm font-medium text-gray-700">
+                    Website
+                  </label>
+                  <input
+                    type="text"
+                    name="website"
+                    id="website"
+                    value={formData.website}
+                    onChange={handleChange}
+                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   />
                 </div>
               </div>
@@ -134,13 +141,13 @@ const UserProfile: React.FC = () => {
                     setIsEditing(false);
                     setFormData(userData);
                   }}
-                  className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0EA9E1]"
+                  className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-gradient-to-r from-[#1D2160] to-[#0EA9E1] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0EA9E1]"
+                  className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                 >
                   Save
                 </button>
@@ -159,8 +166,20 @@ const UserProfile: React.FC = () => {
                 <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{userData.email}</dd>
               </div>
               <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                <dt className="text-sm font-medium text-gray-500">Grade</dt>
-                <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{userData.grade}</dd>
+                <dt className="text-sm font-medium text-gray-500">Bio</dt>
+                <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{userData.bio}</dd>
+              </div>
+              <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                <dt className="text-sm font-medium text-gray-500">Location</dt>
+                <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{userData.location}</dd>
+              </div>
+              <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                <dt className="text-sm font-medium text-gray-500">Website</dt>
+                <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                  <a href={userData.website} className="text-indigo-600 hover:text-indigo-500" target="_blank" rel="noopener noreferrer">
+                    {userData.website}
+                  </a>
+                </dd>
               </div>
             </dl>
           </div>
