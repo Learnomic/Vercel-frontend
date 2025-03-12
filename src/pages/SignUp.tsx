@@ -41,6 +41,7 @@ const SignUp: React.FC = () => {
     }));
   };
 
+   
   const validateForm = (): boolean => {
     if (
       !formData.name ||
