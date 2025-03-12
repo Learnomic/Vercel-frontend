@@ -6,6 +6,8 @@ import Home from './pages/Home'
 import Login from './pages/Login'
 import SignUp from './pages/SignUp'
 import UserProfile from './pages/UserProfile'
+import { SubjectsPage } from './components/SubjectCard'
+import BoardSelection from './components/BoardSelection'
 
 // Import layout
 import MainLayout from './components/MainLayout'
@@ -17,6 +19,8 @@ function App() {
         <Route path="/" element={<MainLayout />}>
           <Route index element={<Home />} />
           <Route path="profile" element={<UserProfile />} />
+          <Route path="subjects" element={<SubjectsPage />} />
+          <Route path="start-learning" element={<BoardSelection />} />
         </Route>
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
