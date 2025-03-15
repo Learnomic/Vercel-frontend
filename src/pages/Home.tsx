@@ -20,7 +20,7 @@ const Home: React.FC = () => {
   }, []);
 
   return (
-    <div className="space-y-8 sm:space-y-12">
+    <div className="space-y-8 sm:space-y-12 animate-fade-down animate-once animate-duration-1000">
       <section 
         className="min-h-[100vh] sm:min-h-[80vh] sm:h-screen py-8 sm:py-10 bg-cover bg-center relative flex items-center justify-center text-center"
         style={{ 
@@ -41,7 +41,7 @@ const Home: React.FC = () => {
           <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
             <Link
               to="/start-learning"
-              className="btn-gradient px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base font-medium rounded-md shadow-md hover:shadow-lg transition-all duration-300"
+              className=" btn-gradient px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base font-medium rounded-md shadow-md hover:shadow-lg transition-all duration-300"
             >
               Start Learning
             </Link>

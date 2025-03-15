@@ -43,9 +43,9 @@ const Navbar: React.FC = () => {
     navigate('/');
   };
 
-  // Define the active and inactive styles
+  // Define the active and inactive styles with popup animation
   const navLinkClasses = ({ isActive }: { isActive: boolean }) => {
-    const baseClasses = "px-3 py-2 rounded-md text-sm font-medium";
+    const baseClasses = "px-3 py-2 rounded-md text-sm font-medium transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg";
     const activeClasses = "text-indigo-700 bg-indigo-50";
     const inactiveClasses = "text-gray-600 hover:text-gray-900 hover:bg-gray-50";
     
@@ -70,7 +70,7 @@ const Navbar: React.FC = () => {
           <div className="md:hidden">
             <button 
               onClick={toggleMenu}
-              className="inline-flex items-center justify-center p-2 rounded-md text-blue-900 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
+              className="inline-flex items-center justify-center p-2 rounded-md text-blue-900 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-md"
               aria-expanded={isMenuOpen}
             >
               <span className="sr-only">Open main menu</span>
@@ -98,26 +98,26 @@ const Navbar: React.FC = () => {
               <div className="relative" ref={profileRef}>
                 <button
                   onClick={() => setIsProfileOpen(!isProfileOpen)}
-                  className="flex items-center justify-center w-8 h-8 rounded-full bg-[#8AB4F8] text-white font-medium text-lg hover:bg-opacity-90 focus:outline-none"
+                  className="flex items-center justify-center w-8 h-8 rounded-full bg-[#8AB4F8] text-white font-medium text-lg transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg hover:bg-opacity-90 focus:outline-none"
                 >
-                  {userData?.name.charAt(0).toUpperCase()}
+                  {userData?.name ? userData.name.charAt(0).toUpperCase() : 'U'}
                 </button>
 
                 {isProfileOpen && (
-                  <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 divide-y divide-gray-100">
+                  <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 divide-y divide-gray-100 transform transition-all duration-300">
                     <div className="p-4">
                       <div className="flex items-center space-x-3">
                         <div className="flex-shrink-0">
                           <div className="w-12 h-12 rounded-full bg-[#8AB4F8] flex items-center justify-center text-white text-2xl font-medium">
-                            {userData?.name.charAt(0).toUpperCase()}
+                            {userData?.name ? userData.name.charAt(0).toUpperCase() : 'U'}
                           </div>
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium text-gray-900 truncate">
-                            {userData?.name}
+                            {userData?.name || 'User'}
                           </p>
                           <p className="text-sm text-gray-500 truncate">
-                            {userData?.email}
+                            {userData?.email || 'No email provided'}
                           </p>
                         </div>
                       </div>
@@ -126,7 +126,7 @@ const Navbar: React.FC = () => {
                     <div className="p-2">
                       <Link
                         to="/profile"
-                        className="group flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md"
+                        className="group flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md transition-all duration-300 transform hover:-translate-y-1 hover:shadow-md"
                         onClick={() => setIsProfileOpen(false)}
                       >
                         <FaCog className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500" />
@@ -134,7 +134,7 @@ const Navbar: React.FC = () => {
                       </Link>
                       <button
                         onClick={handleLogout}
-                        className="group flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md"
+                        className="group flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md transition-all duration-300 transform hover:-translate-y-1 hover:shadow-md"
                       >
                         <FaSignOutAlt className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500" />
                         Sign out
@@ -188,7 +188,7 @@ const Navbar: React.FC = () => {
           <NavLink 
             to="/" 
             className={({ isActive }) => 
-              `block px-3 py-3 rounded-md text-base font-medium ${
+              `block px-3 py-3 rounded-md text-base font-medium transition-all duration-300 transform hover:-translate-y-1 hover:shadow-md ${
                 isActive ? 'text-indigo-700 bg-indigo-50' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
               }`
             }
@@ -200,7 +200,7 @@ const Navbar: React.FC = () => {
           <NavLink 
             to="/subjects" 
             className={({ isActive }) => 
-              `block px-3 py-3 rounded-md text-base font-medium ${
+              `block px-3 py-3 rounded-md text-base font-medium transition-all duration-300 transform hover:-translate-y-1 hover:shadow-md ${
                 isActive ? 'text-indigo-700 bg-indigo-50' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
               }`
             }
@@ -213,7 +213,7 @@ const Navbar: React.FC = () => {
               <NavLink 
                 to="/profile" 
                 className={({ isActive }) => 
-                  `block px-3 py-3 rounded-md text-base font-medium ${
+                  `block px-3 py-3 rounded-md text-base font-medium transition-all duration-300 transform hover:-translate-y-1 hover:shadow-md ${
                     isActive ? 'text-indigo-700 bg-indigo-50' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                   }`
                 }
@@ -227,7 +227,7 @@ const Navbar: React.FC = () => {
                   handleLogout();
                   setIsMenuOpen(false);
                 }}
-                className="w-full text-left px-3 py-3 rounded-md text-base font-medium text-red-600 hover:text-red-700 hover:bg-red-50"
+                className="w-full text-left px-3 py-3 rounded-md text-base font-medium text-red-600 hover:text-red-700 hover:bg-red-50 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-md"
               >
                 <FaSignOutAlt className="inline-block mr-2" />
                 Sign out
@@ -238,7 +238,7 @@ const Navbar: React.FC = () => {
               <NavLink 
                 to="/login" 
                 className={({ isActive }) => 
-                  `block px-3 py-3 rounded-md text-base font-medium ${
+                  `block px-3 py-3 rounded-md text-base font-medium transition-all duration-300 transform hover:-translate-y-1 hover:shadow-md ${
                     isActive ? 'text-indigo-700 bg-indigo-50' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                   }`
                 }
@@ -249,7 +249,7 @@ const Navbar: React.FC = () => {
               <NavLink 
                 to="/signup" 
                 className={({ isActive }) => 
-                  `block px-3 py-3 rounded-md text-base font-medium ${
+                  `block px-3 py-3 rounded-md text-base font-medium transition-all duration-300 transform hover:-translate-y-1 hover:shadow-md ${
                     isActive ? 'text-indigo-700 bg-indigo-50' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                   }`
                 }

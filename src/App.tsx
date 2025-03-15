@@ -8,6 +8,7 @@ import SignUp from './pages/SignUp'
 import UserProfile from './pages/UserProfile'
 import { SubjectsPage } from './components/SubjectCard'
 import BoardSelection from './components/BoardSelection'
+import WatchVideo from './pages/WatchVideo'
 
 // Import layout
 import MainLayout from './components/MainLayout'
@@ -21,9 +22,10 @@ function App() {
           <Route path="profile" element={<UserProfile />} />
           <Route path="subjects" element={<SubjectsPage />} />
           <Route path="start-learning" element={<BoardSelection />} />
+          <Route path="watch" element={<WatchVideo />} />
         </Route>
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<SignUp />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<SignUp />} />
       </Routes>
     </Router>
   )

@@ -1,5 +1,32 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
+
+// Helper function to convert numeric grade to text
+const convertGradeToText = (grade: string): string => {
+  const gradeMap: { [key: string]: string } = {
+    '1': 'ONE',
+    '2': 'TWO',
+    '3': 'THREE',
+    '4': 'FOUR',
+    '5': 'FIVE',
+    '6': 'SIX',
+    '7': 'SEVEN',
+    '8': 'EIGHT',
+    '9': 'NINE',
+    '10': 'TEN',
+    '11': 'ELEVEN',
+    '12': 'TWELVE'
+  };
+  return gradeMap[grade] || grade.toUpperCase();
+};
+
+// Helper function to format subject name for URL
+const formatSubjectForUrl = (subject: string): string => {
+  if (subject.toLowerCase() === 'mathematics') {
+    return 'MATH';
+  }
+  return subject.toUpperCase().replace(/\s+/g, '%20');
+};
 
 export const subjects = [
   {
@@ -70,9 +97,18 @@ const SubjectCard: React.FC<SubjectCardProps> = ({
   id, 
   name, 
   imageUrl, 
-  description, 
-  linkTo = `/subjects/${id}` 
+  description
 }) => {
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const board = searchParams.get('board') || '';
+  const grade = searchParams.get('grade') || '';
+
+  // Convert grade to text format and create the link with query parameters
+  const textGrade = convertGradeToText(grade);
+  const formattedSubject = formatSubjectForUrl(name);
+  const linkTo = `/watch?board=${board}&grade=${textGrade}&subject=${formattedSubject}`;
+
   const cardContent = (
     <div className="group  h-full flex flex-col overflow-hidden rounded-lg shadow-lg transition-all duration-300 hover:shadow-xl bg-white">
       <div className="flex-shrink-0 relative h-48 overflow-hidden">

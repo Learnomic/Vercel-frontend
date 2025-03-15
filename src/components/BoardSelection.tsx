@@ -4,19 +4,19 @@ import { FaUniversity, FaGraduationCap, FaSchool } from 'react-icons/fa';
 
 const boards = [
   {
-    id: 'cbse',
+    id: 'CBSE',
     name: 'CBSE',
     description: 'Central Board of Secondary Education',
     logo: <FaUniversity className="text-indigo-600" />,
   },
   {
-    id: 'icse',
+    id: 'ICSE',
     name: 'ICSE',
     description: 'Indian Certificate of Secondary Education',
     logo: <FaGraduationCap className="text-indigo-600" />,
   },
   {
-    id: 'state',
+    id: 'SSC',
     name: 'State Board',
     description: 'State Board of Education',
     logo: <FaSchool className="text-indigo-600" />,

@@ -3,13 +3,14 @@ import apiClient from './apiClient';
 // Define API endpoints
 export const API_ENDPOINTS = {
   AUTH: {
-    LOGIN: '/login',
-    REGISTER: '/signup',
-    REFRESH_TOKEN: '/refresh-token',
-    LOGOUT: '/logout',
-    FORGOT_PASSWORD: '/forgot-password',
-    RESET_PASSWORD: '/reset-password',
-  }
+    LOGIN: 'login',
+    REGISTER: 'signup',
+    REFRESH_TOKEN: 'refresh-token',
+    LOGOUT: 'logout',
+    FORGOT_PASSWORD: 'forgot-password',
+    RESET_PASSWORD: 'reset-password',
+  },
+  GetProfile:"user/profile"
 };
 
 // Auth services
