@@ -3,42 +3,67 @@ import { Link, NavLink, useNavigate } from 'react-router-dom';
 import logo from '../assets/learnomic.png';
 import { FaUserCircle, FaSignOutAlt, FaCog } from 'react-icons/fa';
 
+interface UserData {
+  name: string;
+  email: string;
+  grade: string;
+  board: string;
+}
+
 const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userData, setUserData] = useState<{ name: string; email: string; grade: string } | null>(null);
+  const [userData, setUserData] = useState<UserData | null>(null);
   const navigate = useNavigate();
   const profileRef = useRef<HTMLDivElement>(null);
 
-  // Prevent scrolling when mobile menu is open
   useEffect(() => {
-    // Check if user is logged in (you can replace this with your actual auth check)
     const checkAuth = () => {
       const token = localStorage.getItem('token');
       const userStr = localStorage.getItem('user');
       setIsLoggedIn(!!token);
       if (userStr) {
-        setUserData(JSON.parse(userStr));
+        try {
+          const user = JSON.parse(userStr);
+          setUserData(user);
+        } catch (err) {
+          console.error('Error parsing user data:', err);
+          localStorage.removeItem('user');
+        }
+      }
+    };
+
+    checkAuth();
+    
+    // Add event listener for storage changes
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'user' || e.key === 'token') {
+        checkAuth();
       }
     };
     
-    checkAuth();
-    if (isMenuOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'auto';
-    }
-    
-    return () => {
-      document.body.style.overflow = 'auto';
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+
+  // Close profile dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
+        setIsProfileOpen(false);
+      }
     };
-  }, [isMenuOpen]);
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     setIsLoggedIn(false);
+    setUserData(null);
     setIsProfileOpen(false);
     navigate('/');
   };

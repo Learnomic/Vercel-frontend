@@ -12,7 +12,7 @@ const apiClient = axios.create({
   timeout: 10000, // 10 seconds
 });
 
-// Request interceptor for adding auth token
+// Request interceptor to add auth token
 apiClient.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
@@ -26,14 +26,12 @@ apiClient.interceptors.request.use(
   }
 );
 
-// Response interceptor for handling errors
+// Response interceptor to handle token expiration
 apiClient.interceptors.response.use(
   (response) => response,
-  (error) => {
-    // If unauthorized, redirect to login
+  async (error) => {
     if (error.response?.status === 401) {
       localStorage.removeItem('token');
-      localStorage.removeItem('refreshToken'); 
       localStorage.removeItem('user');
       window.location.href = '/login';
     }

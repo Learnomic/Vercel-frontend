@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../services/apiClient';
 import { FaUser, FaEnvelope, FaGraduationCap, FaSchool } from 'react-icons/fa';
+import { API_ENDPOINTS } from '../services/apiServices';
 
 interface UserData {
   name: string;
@@ -32,26 +33,17 @@ const UserProfile: React.FC = () => {
       }
 
       try {
-        const response = await axios.get('http://localhost:5000/api/user/profile', {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
+        const response = await apiClient.get(API_ENDPOINTS.GetProfile);
+        console.log('Profile Data:', response.data);
         
-        // Extract only the fields we want to display
-        const { name, email, grade, board } = response.data;
-        const profileData = { name, email, grade, board };
-        
+        const profileData = response.data;
         setUserData(profileData);
         setFormData(profileData);
+        localStorage.setItem('user', JSON.stringify(profileData));
         setError('');
       } catch (err: any) {
-        if (err.response?.status === 401) {
-          localStorage.removeItem('token');
-          navigate('/login');
-        } else {
-          setError('Failed to load profile data. Please try again later.');
-        }
+        console.error('Profile fetch error:', err);
+        setError('Failed to load profile data. Please try again later.');
       } finally {
         setIsLoading(false);
       }
@@ -73,35 +65,14 @@ const UserProfile: React.FC = () => {
     setIsLoading(true);
     setError('');
 
-    const updateData = {
-      name: formData.name,
-      email: formData.email,
-      grade: formData.grade,
-      board: formData.board
-    };
-
     try {
-      const token = localStorage.getItem('token');
-      const response = await axios.put('http://localhost:5000/api/user/profile', updateData, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
-      
-      // Extract only the fields we want to display
-      const { name, email, grade, board } = response.data;
-      const profileData = { name, email, grade, board };
-      
-      setUserData(profileData);
+      const response = await apiClient.put(API_ENDPOINTS.GetProfile, formData);
+      setUserData(response.data);
       setIsEditing(false);
-      localStorage.setItem('user', JSON.stringify(profileData));
+      localStorage.setItem('user', JSON.stringify(response.data));
     } catch (err: any) {
-      if (err.response?.status === 401) {
-        localStorage.removeItem('token');
-        navigate('/login');
-      } else {
-        setError('Failed to update profile. Please try again later.');
-      }
+      console.error('Profile update error:', err); // Debug log
+      setError('Failed to update profile. Please try again later.');
     } finally {
       setIsLoading(false);
     }
