@@ -4,14 +4,22 @@ import apiClient from './apiClient';
 export const API_ENDPOINTS = {
   AUTH: {
     LOGIN: 'login',
-    REGISTER: 'signup',
     REFRESH_TOKEN: 'refresh-token',
     LOGOUT: 'logout',
     FORGOT_PASSWORD: 'forgot-password',
     RESET_PASSWORD: 'reset-password',
   },
-  GetProfile:"user/profile"
+  GetProfile: "user/profile",
+  Register: "signup"
 };
+
+interface RegisterData {
+  name: string;
+  email: string;
+  password: string;
+  board: string;
+  grade: number;
+}
 
 // Auth services
 export const authService = {
@@ -19,10 +27,10 @@ export const authService = {
     return apiClient.post(API_ENDPOINTS.AUTH.LOGIN, { email, password });
   },
   
-  register: (name: string, email: string, password: string, grade?: string) => {
-    return apiClient.post(API_ENDPOINTS.AUTH.REGISTER, { name, email, password, grade });
+  register: (data: RegisterData) => {
+    return apiClient.post(API_ENDPOINTS.Register, data);
   },
-  
+ 
   logout: () => {
     const refreshToken = localStorage.getItem('refreshToken');
     localStorage.removeItem('token');

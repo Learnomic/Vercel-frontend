@@ -16,8 +16,7 @@ const SignUp: React.FC = () => {
     email: "",
     password: "",
     confirmPassword: "",
-    grade: "", // Default grade
-    terms: false // Add terms field
+    terms: false
   });
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -48,7 +47,6 @@ const SignUp: React.FC = () => {
       !formData.email ||
       !formData.password ||
       !formData.confirmPassword ||
-      !formData.grade ||
       !formData.terms
     ) {
       setError("Please fill in all fields and accept the terms");
@@ -76,48 +74,17 @@ const SignUp: React.FC = () => {
       return;
     }
 
-    setIsLoading(true);
-
-    try {
-      await authService.register(
-        formData.name,
-        formData.email,
-        formData.password,
-        formData.grade
-      );
-
-      // Show success message and redirect to login
-      alert("Registration successful! Please log in.");
-      navigate("/login");
-    } catch (err: unknown) {
-      if (axios.isAxiosError(err)) {
-        const error = err as AxiosError<ApiError>;
-        const serverError = error.response?.data;
-
-        if (serverError?.message) {
-          setError(serverError.message);
-        } else if (serverError?.errors) {
-          // Handle validation errors
-          const errorValues = Object.values(serverError.errors || {});
-          const firstErrorArray = errorValues.length > 0 ? errorValues[0] : [];
-          const firstError =
-            firstErrorArray.length > 0
-              ? firstErrorArray[0]
-              : "Registration failed";
-          setError(firstError);
-        } else if (error.response?.status === 409) {
-          setError("Email already exists. Please use a different email.");
-        } else if (!error.response) {
-          setError("Network error. Please check your connection.");
-        } else {
-          setError("An unexpected error occurred. Please try again.");
-        }
-      } else {
-        setError("An unexpected error occurred. Please try again.");
-      }
-    } finally {
-      setIsLoading(false);
-    }
+    // Store registration data in localStorage
+    const registrationData = {
+      name: formData.name,
+      email: formData.email,
+      password: formData.password
+    };
+    
+    localStorage.setItem('registrationData', JSON.stringify(registrationData));
+    
+    // Redirect to board selection
+    navigate('/board-selection');
   };
 
   return (
@@ -171,20 +138,6 @@ const SignUp: React.FC = () => {
                     required
                     placeholder="Email address"
                     value={formData.email}
-                    onChange={handleChange}
-                    disabled={isLoading}
-                    className="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 text-gray-900 shadow-sm focus:border-[#0EA9E1] focus:outline-none focus:ring-1 focus:ring-[#0EA9E1] sm:text-sm"
-                  />
-                </div>
-
-                <div>
-                  <input
-                    id="grade"
-                    name="grade"
-                    type="text"
-                    required
-                    placeholder="Grade"
-                    value={formData.grade}
                     onChange={handleChange}
                     disabled={isLoading}
                     className="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 text-gray-900 shadow-sm focus:border-[#0EA9E1] focus:outline-none focus:ring-1 focus:ring-[#0EA9E1] sm:text-sm"

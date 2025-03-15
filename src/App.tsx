@@ -21,7 +21,7 @@ function App() {
           <Route index element={<Home />} />
           <Route path="profile" element={<UserProfile />} />
           <Route path="subjects" element={<SubjectsPage />} />
-          <Route path="start-learning" element={<BoardSelection />} />
+          <Route path="board-selection" element={<BoardSelection />} />
           <Route path="watch" element={<WatchVideo />} />
         </Route>
           <Route path="/login" element={<Login />} />

@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { FaUniversity, FaGraduationCap, FaSchool } from 'react-icons/fa';
+import { authService } from '../services/apiServices';
 
 const boards = [
   {
@@ -31,10 +32,22 @@ const grades = Array.from({ length: 12 }, (_, i) => ({
 }));
 
 const BoardSelection: React.FC = () => {
+  const navigate = useNavigate();
   const [selectedBoard, setSelectedBoard] = useState<string | null>(null);
   const [selectedGrade, setSelectedGrade] = useState<number | null>(null);
   const [currentStep, setCurrentStep] = useState(1);
+  const [error, setError] = useState<string>("");
+  const [isLoading, setIsLoading] = useState(false);
   const totalSteps = 2;
+
+  useEffect(() => {
+    // Check if we have registration data
+    const registrationData = localStorage.getItem('registrationData');
+    if (!registrationData) {
+      // If no registration data, redirect back to signup
+      navigate('/signup');
+    }
+  }, [navigate]);
 
   const handleBoardSelect = (boardId: string) => {
     setSelectedBoard(boardId);
@@ -56,8 +69,49 @@ const BoardSelection: React.FC = () => {
     }
   };
 
+  const handleCompleteRegistration = async () => {
+    if (!selectedBoard || !selectedGrade) return;
+
+    const registrationData = localStorage.getItem('registrationData');
+    if (!registrationData) {
+      navigate('/signup');
+      return;
+    }
+
+    setIsLoading(true);
+    setError("");
+
+    try {
+      const basicData = JSON.parse(registrationData);
+      const completeData = {
+        ...basicData,
+        board: selectedBoard,
+        grade: selectedGrade
+      };
+
+      await authService.register(completeData);
+      
+      // Clear registration data
+      localStorage.removeItem('registrationData');
+      
+      // Show success message and redirect to login
+      alert("Registration successful! Please log in.");
+      navigate('/login');
+    } catch (err: any) {
+      setError(err.response?.data?.message || "Registration failed. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+      {error && (
+        <div className="mb-4 bg-red-50 border-l-4 border-red-500 p-4">
+          <p className="text-red-700">{error}</p>
+        </div>
+      )}
+
       {/* Progress Bar */}
       <div className="mb-6 sm:mb-8">
         <div className="flex items-center justify-between mb-2">
@@ -145,12 +199,13 @@ const BoardSelection: React.FC = () => {
         </button>
         
         {currentStep === totalSteps && selectedGrade ? (
-          <Link
-            to={`/subjects?board=${selectedBoard}&grade=${selectedGrade}`}
+          <button
+            onClick={handleCompleteRegistration}
+            disabled={isLoading}
             className="btn-gradient px-4 sm:px-6 py-2 sm:py-3 rounded-md text-sm sm:text-base font-medium text-center sm:text-left"
           >
-            View Subjects
-          </Link>
+            {isLoading ? "Registering..." : "Complete Registration"}
+          </button>
         ) : (
           <button
             onClick={handleNext}
