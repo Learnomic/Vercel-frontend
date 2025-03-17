@@ -82,7 +82,7 @@ const Navbar: React.FC = () => {
   };
 
   return (
-    <header className="bg-white shadow-sm relative z-50">
+    <header className="bg-white bg-opacity-75 backdrop-filter backdrop-blur-md shadow-sm sticky top-0 z-50 transition-all duration-300">
       <div className="max-w-7xl mx-auto pr-3 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
           <div className="flex-shrink-0 flex items-center">
@@ -193,7 +193,7 @@ const Navbar: React.FC = () => {
       
       {/* Mobile menu slide-in panel */}
       <div 
-        className={`fixed top-0 right-0 w-[70%] h-full bg-white shadow-lg z-50 transform transition-transform duration-300 ease-in-out md:hidden ${
+        className={`fixed top-0 right-0 w-[70%] h-full bg-white bg-opacity-90 backdrop-filter backdrop-blur-md shadow-lg z-50 transform transition-transform duration-300 ease-in-out md:hidden ${
           isMenuOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
