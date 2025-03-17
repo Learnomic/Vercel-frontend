@@ -88,8 +88,8 @@ const SignUp: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#fffff] flex items-center justify-center p-4">
-      <div className="w-full max-w-[1000px] h-auto md:h-[600px] bg-white rounded-3xl shadow-xl flex overflow-hidden">
+    <div className="min-h-screen bg-[#fffff] flex  justify-center p-4">
+      <div className="w-full max-w-[1000px] h-auto md:h-[600px] bg-white shadow-xl flex overflow-hidden">
         {/* Left side - Sign up form */}
         <div className="w-full md:w-1/2 bg-white p-4 md:p-8 flex flex-col">
           <div className="flex-1 overflow-y-auto">

@@ -94,8 +94,8 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#fffff] flex items-center justify-center p-4">
-      <div className="w-full max-w-[1000px] h-auto md:h-[600px] bg-white rounded-3xl shadow-xl flex overflow-hidden">
+    <div className="min-h-screen bg-[#fffff] flex  justify-center p-4">
+      <div className="w-full max-w-[1000px] h-auto md:h-[600px] bg-white  shadow-xl flex overflow-hidden">
         {/* Left side - Purple section with illustration */}
         <div className="hidden md:block w-1/2 bg-[#6161FF] relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-[#6161FF] to-[#897BFF]">

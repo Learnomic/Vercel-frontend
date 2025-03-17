@@ -82,8 +82,8 @@ const Navbar: React.FC = () => {
   };
 
   return (
-    <header className="bg-white shadow-sm relative z-50">
-      <div className="max-w-7xl mx-auto pr-3 sm:px-6 lg:px-8">
+    <header className="bg-blue-200 shadow-sm relative z-50">
+      <div className="w-full mx-auto pr-3 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
           <div className="flex-shrink-0 flex items-center">
             <Link to="/" className="flex items-center">
@@ -173,9 +173,9 @@ const Navbar: React.FC = () => {
                 <NavLink to="/login" className={navLinkClasses}>
                   Login
                 </NavLink>
-                <NavLink to="/signup" className={navLinkClasses}>
+                {/* <NavLink to="/signup" className={navLinkClasses}>
                   Sign Up
-                </NavLink>
+                </NavLink> */}
               </>
             )}
           </nav>
