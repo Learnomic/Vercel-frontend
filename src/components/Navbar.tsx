@@ -18,22 +18,26 @@ const Navbar: React.FC = () => {
   const navigate = useNavigate();
   const profileRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const checkAuth = () => {
-      const token = localStorage.getItem('token');
-      const userStr = localStorage.getItem('user');
-      setIsLoggedIn(!!token);
-      if (userStr) {
-        try {
-          const user = JSON.parse(userStr);
-          setUserData(user);
-        } catch (err) {
-          console.error('Error parsing user data:', err);
-          localStorage.removeItem('user');
-        }
+  const checkAuth = () => {
+    const token = localStorage.getItem('token');
+    const userStr = localStorage.getItem('user');
+    setIsLoggedIn(!!token);
+    if (userStr) {
+      try {
+        const user = JSON.parse(userStr);
+        setUserData(user);
+      } catch (err) {
+        console.error('Error parsing user data:', err);
+        localStorage.removeItem('user');
+        setUserData(null);
       }
-    };
+    } else {
+      setUserData(null);
+    }
+  };
 
+  useEffect(() => {
+    // Initial check
     checkAuth();
     
     // Add event listener for storage changes
@@ -44,7 +48,14 @@ const Navbar: React.FC = () => {
     };
     
     window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
+    window.addEventListener('login', checkAuth);
+    window.addEventListener('logout', checkAuth);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('login', checkAuth);
+      window.removeEventListener('logout', checkAuth);
+    };
   }, []);
 
   // Close profile dropdown when clicking outside
@@ -65,14 +76,15 @@ const Navbar: React.FC = () => {
     setIsLoggedIn(false);
     setUserData(null);
     setIsProfileOpen(false);
+    window.dispatchEvent(new Event('logout'));
     navigate('/');
   };
 
   // Define the active and inactive styles with popup animation
   const navLinkClasses = ({ isActive }: { isActive: boolean }) => {
     const baseClasses = "px-3 py-2 rounded-md text-sm font-medium transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg";
-    const activeClasses = "text-indigo-700 bg-indigo-50";
-    const inactiveClasses = "text-gray-600 hover:text-gray-900 hover:bg-gray-50";
+    const activeClasses = "text-indigo-700 bg-indigo-50 bg-opacity-70";
+    const inactiveClasses = "text-gray-700 hover:text-gray-900 hover:bg-gray-50 hover:bg-opacity-70";
     
     return `${baseClasses} ${isActive ? activeClasses : inactiveClasses}`;
   };
@@ -82,8 +94,8 @@ const Navbar: React.FC = () => {
   };
 
   return (
-    <header className="bg-white bg-opacity-75 backdrop-filter backdrop-blur-md shadow-sm sticky top-0 z-50 transition-all duration-300">
-      <div className="max-w-7xl mx-auto pr-3 sm:px-6 lg:px-8">
+    <header className="bg-transparent backdrop-blur-md bg-white/30 shadow-sm sticky top-0 z-50">
+      <div className="w-full mx-auto pr-3 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
           <div className="flex-shrink-0 flex items-center">
             <Link to="/" className="flex items-center">
@@ -95,7 +107,7 @@ const Navbar: React.FC = () => {
           <div className="md:hidden">
             <button 
               onClick={toggleMenu}
-              className="inline-flex items-center justify-center p-2 rounded-md text-blue-900 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-md"
+              className="inline-flex items-center justify-center p-2 rounded-md text-blue-900 hover:text-gray-500 hover:bg-gray-100 hover:bg-opacity-70 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-md"
               aria-expanded={isMenuOpen}
             >
               <span className="sr-only">Open main menu</span>
@@ -129,7 +141,7 @@ const Navbar: React.FC = () => {
                 </button>
 
                 {isProfileOpen && (
-                  <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 divide-y divide-gray-100 transform transition-all duration-300">
+                  <div className="absolute right-0 mt-2 w-80 bg-white/90 backdrop-blur-md rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 divide-y divide-gray-100 transform transition-all duration-300">
                     <div className="p-4">
                       <div className="flex items-center space-x-3">
                         <div className="flex-shrink-0">
@@ -151,7 +163,7 @@ const Navbar: React.FC = () => {
                     <div className="p-2">
                       <Link
                         to="/profile"
-                        className="group flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md transition-all duration-300 transform hover:-translate-y-1 hover:shadow-md"
+                        className="group flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:bg-opacity-70 rounded-md transition-all duration-300 transform hover:-translate-y-1 hover:shadow-md"
                         onClick={() => setIsProfileOpen(false)}
                       >
                         <FaCog className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500" />
@@ -159,7 +171,7 @@ const Navbar: React.FC = () => {
                       </Link>
                       <button
                         onClick={handleLogout}
-                        className="group flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md transition-all duration-300 transform hover:-translate-y-1 hover:shadow-md"
+                        className="group flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:bg-opacity-70 rounded-md transition-all duration-300 transform hover:-translate-y-1 hover:shadow-md"
                       >
                         <FaSignOutAlt className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500" />
                         Sign out
@@ -169,14 +181,9 @@ const Navbar: React.FC = () => {
                 )}
               </div>
             ) : (
-              <>
-                <NavLink to="/login" className={navLinkClasses}>
-                  Login
-                </NavLink>
-                <NavLink to="/signup" className={navLinkClasses}>
-                  Sign Up
-                </NavLink>
-              </>
+              <NavLink to="/login" className={navLinkClasses}>
+                Login
+              </NavLink>
             )}
           </nav>
         </div>
@@ -193,11 +200,11 @@ const Navbar: React.FC = () => {
       
       {/* Mobile menu slide-in panel */}
       <div 
-        className={`fixed top-0 right-0 w-[70%] h-full bg-white bg-opacity-90 backdrop-filter backdrop-blur-md shadow-lg z-50 transform transition-transform duration-300 ease-in-out md:hidden ${
+        className={`fixed top-0 right-0 w-[70%] h-full bg-white shadow-lg z-50 transform transition-transform duration-300 ease-in-out md:hidden ${
           isMenuOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
-        <div className="flex justify-between items-center p-4 border-b">
+        <div className="flex justify-between items-center p-4 border-b border-gray-200 bg-white">
           <h2 className="text-lg font-semibold text-gray-900">Menu</h2>
           <button 
             onClick={() => setIsMenuOpen(false)}
@@ -208,13 +215,34 @@ const Navbar: React.FC = () => {
             </svg>
           </button>
         </div>
+
+        {/* User Profile Section (if logged in) */}
+        {isLoggedIn && (
+          <div className="px-4 py-4 border-b border-gray-200 bg-white">
+            <div className="flex items-center space-x-3">
+              <div className="flex-shrink-0">
+                <div className="w-12 h-12 rounded-full bg-[#8AB4F8] flex items-center justify-center text-white text-2xl font-medium">
+                  {userData?.name ? userData.name.charAt(0).toUpperCase() : 'U'}
+                </div>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-gray-900 truncate">
+                  {userData?.name || 'User'}
+                </p>
+                <p className="text-sm text-gray-500 truncate">
+                  {userData?.email || 'No email provided'}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
         
-        <nav className="px-4 pt-4 pb-6 space-y-2">
+        <nav className="px-4 pt-4 pb-6 space-y-2 bg-white">
           <NavLink 
             to="/" 
             className={({ isActive }) => 
               `block px-3 py-3 rounded-md text-base font-medium transition-all duration-300 transform hover:-translate-y-1 hover:shadow-md ${
-                isActive ? 'text-indigo-700 bg-indigo-50' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                isActive ? 'text-indigo-700 bg-indigo-50 bg-opacity-70' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'
               }`
             }
             end
@@ -226,63 +254,25 @@ const Navbar: React.FC = () => {
             to="/subjects" 
             className={({ isActive }) => 
               `block px-3 py-3 rounded-md text-base font-medium transition-all duration-300 transform hover:-translate-y-1 hover:shadow-md ${
-                isActive ? 'text-indigo-700 bg-indigo-50' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                isActive ? 'text-indigo-700 bg-indigo-50 bg-opacity-70' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'
               }`
             }
             onClick={() => setIsMenuOpen(false)}
           >
             Subjects
           </NavLink>
-          {isLoggedIn ? (
-            <>
-              <NavLink 
-                to="/profile" 
-                className={({ isActive }) => 
-                  `block px-3 py-3 rounded-md text-base font-medium transition-all duration-300 transform hover:-translate-y-1 hover:shadow-md ${
-                    isActive ? 'text-indigo-700 bg-indigo-50' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                  }`
-                }
-                onClick={() => setIsMenuOpen(false)}
-              >
-                <FaUserCircle className="inline-block mr-2" />
-                Profile
-              </NavLink>
-              <button
-                onClick={() => {
-                  handleLogout();
-                  setIsMenuOpen(false);
-                }}
-                className="w-full text-left px-3 py-3 rounded-md text-base font-medium text-red-600 hover:text-red-700 hover:bg-red-50 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-md"
-              >
-                <FaSignOutAlt className="inline-block mr-2" />
-                Sign out
-              </button>
-            </>
-          ) : (
-            <>
-              <NavLink 
-                to="/login" 
-                className={({ isActive }) => 
-                  `block px-3 py-3 rounded-md text-base font-medium transition-all duration-300 transform hover:-translate-y-1 hover:shadow-md ${
-                    isActive ? 'text-indigo-700 bg-indigo-50' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                  }`
-                }
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Login
-              </NavLink>
-              <NavLink 
-                to="/signup" 
-                className={({ isActive }) => 
-                  `block px-3 py-3 rounded-md text-base font-medium transition-all duration-300 transform hover:-translate-y-1 hover:shadow-md ${
-                    isActive ? 'text-indigo-700 bg-indigo-50' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                  }`
-                }
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Sign Up
-              </NavLink>
-            </>
+          {!isLoggedIn && (
+            <NavLink 
+              to="/login" 
+              className={({ isActive }) => 
+                `block px-3 py-3 rounded-md text-base font-medium transition-all duration-300 transform hover:-translate-y-1 hover:shadow-md ${
+                  isActive ? 'text-indigo-700 bg-indigo-50 bg-opacity-70' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'
+                }`
+              }
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Login
+            </NavLink>
           )}
         </nav>
       </div>

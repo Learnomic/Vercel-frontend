@@ -23,9 +23,9 @@ function App() {
           <Route path="subjects" element={<SubjectsPage />} />
           <Route path="board-selection" element={<BoardSelection />} />
           <Route path="watch" element={<WatchVideo />} />
-        </Route>
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
+        </Route>
       </Routes>
     </Router>
   )
