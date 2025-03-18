@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { GetAllSubjects } from '../services/apiServices';
 import { FaSpinner } from 'react-icons/fa';
 
@@ -58,7 +58,6 @@ interface SubjectCardProps {
   name: string;
   imageUrl?: string;
   description?: string;
-  linkTo?: string;
 }
 
 const SubjectCard: React.FC<SubjectCardProps> = ({ 
@@ -67,21 +66,22 @@ const SubjectCard: React.FC<SubjectCardProps> = ({
   imageUrl,
   description
 }) => {
-  const location = useLocation();
-  const searchParams = new URLSearchParams(location.search);
-  const board = searchParams.get('board') || '';
-  const grade = searchParams.get('grade') || '';
-
-  // Convert grade to text format and create the link with query parameters
-  const textGrade = convertGradeToText(grade);
-  const formattedSubject = formatSubjectForUrl(name);
-  const linkTo = `/watch?board=${board}&grade=${textGrade}&subject=${formattedSubject}`;
+  const navigate = useNavigate();
 
   // Get the local image based on subject name
   const subjectImage = getSubjectImage(name);
 
+  const handleSubjectClick = () => {
+    // Format the subject name and navigate to the playlists page
+    const formattedSubject = formatSubjectForUrl(name);
+    navigate('/showPlaylist', { state: { subject: formattedSubject } });
+  };
+
   const cardContent = (
-    <div className="group h-full flex flex-col overflow-hidden rounded-lg shadow-lg transition-all duration-300 hover:shadow-xl bg-white">
+    <div 
+      onClick={handleSubjectClick}
+      className="group h-full flex flex-col overflow-hidden rounded-lg shadow-xl transition-all duration-300 hover:shadow-purple-100 bg-white cursor-pointer "
+    >
       <div className="flex-shrink-0 relative h-48 overflow-hidden">
         <img 
           className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" 
@@ -110,13 +110,7 @@ const SubjectCard: React.FC<SubjectCardProps> = ({
     </div>
   );
 
-  return linkTo ? (
-    <Link to={linkTo} className="h-full">
-      {cardContent}
-    </Link>
-  ) : (
-    cardContent
-  );
+  return cardContent;
 };
 
 export const SubjectsPage: React.FC = () => {
@@ -124,18 +118,37 @@ export const SubjectsPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const [userData, setUserData] = useState<any>(null);
+
+  useEffect(() => {
+    // Get user data from localStorage
+    const userStr = localStorage.getItem('user');
+    if (!userStr) {
+      navigate('/login');
+      return;
+    }
+    try {
+      const user = JSON.parse(userStr);
+      setUserData(user);
+    } catch (err) {
+      console.error('Error parsing user data:', err);
+      navigate('/login');
+      return;
+    }
+  }, [navigate]);
 
   useEffect(() => {
     const fetchSubjects = async () => {
       try {
         const response = await GetAllSubjects();
-        console.log(response.data);
+        console.log('API Response:', response.data);
         
-        setSubjects(response.data);
+        // Ensure we're getting the correct data structure
+        const subjectsData = Array.isArray(response.data) ? response.data : [];
+        setSubjects(subjectsData);
         setLoading(false);
       } catch (err: any) {
         if (err.response?.status === 401) {
-          // Token expired or invalid
           localStorage.removeItem('token');
           localStorage.removeItem('user');
           navigate('/login');
@@ -146,8 +159,10 @@ export const SubjectsPage: React.FC = () => {
       }
     };
 
-    fetchSubjects();
-  }, [navigate]);
+    if (userData) {
+      fetchSubjects();
+    }
+  }, [navigate, userData]);
 
   if (loading) {
     return (
@@ -172,19 +187,24 @@ export const SubjectsPage: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6 sm:space-y-8 px-4 sm:px-22">
+    <div className="space-y-6 sm:space-y-8 px-4 sm:px-22  pt-6 pb-8">
       <div className="text-center">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mt-6">All Subjects</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 ">All Subjects</h1>
         <p className="mt-2 sm:mt-4 text-base sm:text-lg text-gray-600">
           Explore our comprehensive collection of subjects and start learning today
         </p>
+        {userData && (
+          <p className="mt-2 text-sm text-indigo-600">
+            {userData.board} - Grade {userData.grade}
+          </p>
+        )}
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:gap-10 sm:grid-cols-2 lg:grid-cols-3">
-        {subjects.map((subject) => (
+      <div className="grid grid-cols-1 gap-4 sm:gap-10 sm:grid-cols-2 lg:grid-cols-3 ">
+        {subjects.map((subject, index) => (
           <SubjectCard
-            key={subject.id}
-            id={subject.id}
+            key={`${subject.name}-${index}`}
+            id={subject.id || index}
             name={subject.name}
             imageUrl={subject.imageUrl}
             description={subject.description}

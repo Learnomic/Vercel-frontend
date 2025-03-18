@@ -1,5 +1,6 @@
 import apiClient from './apiClient';
 import { AxiosResponse } from 'axios';
+import axios from 'axios';
 
 // Define API endpoints
 export const API_ENDPOINTS = {
@@ -14,6 +15,7 @@ export const API_ENDPOINTS = {
   Register: "signup",
   GetAllSubjects: "subjects",
   GetPlaylist: "user/playlists",
+  GetVideo: "playlist/videos?"
 };
 
 interface RegisterData {
@@ -48,6 +50,23 @@ export const GetAllSubjects = async () => {
   return apiClient.post(API_ENDPOINTS.GetAllSubjects, {}, {
     headers: {
       Authorization: `Bearer ${token}`
+    }
+  });
+};
+
+export const GetPlaylistBySubject = async (board: string, grade: string) => {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    throw new Error('No token found');
+  }
+
+  return await apiClient.get('/playlists', {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    params: {
+      board,
+      grade
     }
   });
 };
