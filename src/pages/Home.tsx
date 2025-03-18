@@ -21,7 +21,7 @@ const Home: React.FC = () => {
 
   return (
     <div className="space-y-8 sm:space-y-12 animate-fade-down animate-once animate-duration-1000">
-      <section 
+      {/* <section 
         className="min-h-[100vh] sm:min-h-[80vh] sm:h-screen py-8 sm:py-10 bg-cover bg-center relative flex items-center justify-center text-center"
         style={{ 
           backgroundImage: `url(${backgroundImage})`,
@@ -45,15 +45,47 @@ const Home: React.FC = () => {
             >
               Start Learning
             </Link>
-            {/* <Link
-              to="/signup"
-              className="bg-white text-indigo-600 px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base font-medium rounded-md shadow-md hover:shadow-lg hover:bg-gray-50 transition-all duration-300"
-            >
-              Sign Up Now
-            </Link> */}
+           
           </div>
         </div>
-      </section>
+      </section> */}
+      <section className="bg-gray-900 text-white"
+        >
+  <div className="mx-auto max-w-screen-xl px-4 py-32 lg:flex lg:h-screen lg:items-center">
+    <div className="mx-auto max-w-3xl text-center">
+      <h1
+        className="bg-gradient-to-r from-green-300 via-blue-500 to-purple-600 bg-clip-text text-3xl font-extrabold text-transparent sm:text-5xl"
+      >
+        Understand User Flow.
+
+        <span className="sm:block"> Increase Conversion. </span>
+      </h1>
+
+      <p className="mx-auto mt-4 max-w-xl sm:text-xl/relaxed">
+        Lorem ipsum dolor sit amet consectetur, adipisicing elit. Nesciunt illo tenetur fuga ducimus
+        numquam ea!
+      </p>
+
+      <div className="mt-8 flex flex-wrap justify-center gap-4">
+        {/* <a
+          className="block w-full rounded-sm border border-blue-600 bg-blue-600 px-12 py-3 text-sm font-medium text-white hover:bg-transparent hover:text-white focus:ring-3 focus:outline-hidden sm:w-auto"
+          href="#"
+        >
+          Get Started
+        </a> */}
+        <button className="relative flex h-[50px] w-40 items-center justify-center overflow-hidden bg-white text-blue-800 font-bold  hover:text-white shadow-2xl transition-all before:absolute before:h-0 before:w-0 rounded-full before:rounded-full before:bg-blue-600 before:duration-700 before:ease-out hover:shadow-blue-600 hover:before:h-56 hover:before:w-56">
+                                <span className=" z-10"> Get Started</span>
+                            </button>
+        {/* <a
+          className="block w-full rounded-sm border border-blue-600 px-12 py-3 text-sm font-medium text-white hover:bg-blue-600 focus:ring-3 focus:outline-hidden sm:w-auto"
+          href="#"
+        >
+          Learn More
+        </a> */}
+      </div>
+    </div>
+  </div>
+</section>
 
       <section className="py-8 sm:py-12 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

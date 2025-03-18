@@ -75,10 +75,8 @@ function App() {
               <SubjectsPage />
             </ProtectedRoute>
           } />
-          <Route path="/board-selection" element={
-            
+          <Route path="/board-selection" element={        
               <BoardSelection />
-        
           } />
           <Route path="/watch" element={
             <ProtectedRoute>
