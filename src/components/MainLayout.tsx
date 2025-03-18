@@ -10,7 +10,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <Navbar />
-      <main className="flex-grow w-full mt-16"> {/* Added margin-top to account for fixed navbar */}
+      <main className="flex-grow w-full mt-0"> {/* Added margin-top to account for fixed navbar */}
         <div className="w-full mx-auto px-0 sm:px-6 lg:px-0 py-0 sm:py-0 lg:py-0 overflow-x-hidden">
           {children || <Outlet />}
         </div>

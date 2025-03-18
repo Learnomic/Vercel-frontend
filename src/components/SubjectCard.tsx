@@ -1,5 +1,30 @@
-import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { GetAllSubjects } from '../services/apiServices';
+import { FaSpinner } from 'react-icons/fa';
+
+// Import subject images
+import mathImage from '../assets/MATH.jpg';
+import biologyImage from '../assets/BIOLOGY.jpeg';
+import physicsImage from '../assets/PHYSICS.jpg';
+import chemistryImage from '../assets/CHEMSTRY.jpg';
+import defaultImage from '../assets/education.jpg';
+
+// Map subject names to their corresponding images
+const getSubjectImage = (subjectName: string): string => {
+  const imageMap: { [key: string]: string } = {
+    'Mathematics': mathImage,
+    'MATHEMATICS': mathImage,
+    'MATH': mathImage,
+    'Biology': biologyImage,
+    'BIOLOGY': biologyImage,
+    'Physics': physicsImage,
+    'PHYSICS': physicsImage,
+    'Chemistry': chemistryImage,
+    'CHEMISTRY': chemistryImage
+  };
+  return imageMap[subjectName] || defaultImage;
+};
 
 // Helper function to convert numeric grade to text
 const convertGradeToText = (grade: string): string => {
@@ -28,67 +53,10 @@ const formatSubjectForUrl = (subject: string): string => {
   return subject.toUpperCase().replace(/\s+/g, '%20');
 };
 
-export const subjects = [
-  {
-    id: 1,
-    name: 'Mathematics',
-    imageUrl: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80',
-    description: 'Explore the world of numbers, algebra, geometry, and calculus with our comprehensive mathematics courses.',
-  },
-  {
-    id: 2,
-    name: 'Computer Science',
-    imageUrl: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80',
-    description: 'Learn programming, algorithms, data structures, and software engineering principles.',
-  },
-  {
-    id: 3,
-    name: 'Physics',
-    imageUrl: 'https://images.unsplash.com/photo-1636466497217-26a8cbeaf0aa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80',
-    description: 'Discover the fundamental laws that govern the universe, from classical mechanics to quantum physics.',
-  },
-  {
-    id: 4,
-    name: 'Biology',
-    imageUrl: 'https://images.unsplash.com/photo-1530026405186-ed1f139313f8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80',
-    description: 'Study living organisms, their structure, function, growth, and evolution.',
-  },
-  {
-    id: 5,
-    name: 'Chemistry',
-    imageUrl: 'https://images.unsplash.com/photo-1603126857599-f6e157fa2fe6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80',
-    description: 'Explore the composition, structure, properties, and change of matter.',
-  },
-  {
-    id: 6,
-    name: 'History',
-    imageUrl: 'https://images.unsplash.com/photo-1461360370896-922624d12aa1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80',
-    description: 'Journey through time and learn about significant events, civilizations, and figures that shaped our world.',
-  },
-  {
-    id: 7,
-    name: 'Literature',
-    imageUrl: 'https://images.unsplash.com/photo-1457369804613-52c61a468e7d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    description: 'Explore great works of literature, poetry, and creative writing from around the world.',
-  },
-  {
-    id: 8,
-    name: 'Geography',
-    imageUrl: 'https://images.unsplash.com/photo-1524661135-423995f22d0b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    description: "Study the Earth's landscapes, environments, populations, and cultures.",
-  },
-  {
-    id: 9,
-    name: 'Art History',
-    imageUrl: 'https://images.unsplash.com/photo-1518998053901-5348d3961a04?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    description: 'Discover the history of visual arts, from ancient times to contemporary movements.',
-  }
-];
-
 interface SubjectCardProps {
   id: string | number;
   name: string;
-  imageUrl: string;
+  imageUrl?: string;
   description?: string;
   linkTo?: string;
 }
@@ -96,7 +64,7 @@ interface SubjectCardProps {
 const SubjectCard: React.FC<SubjectCardProps> = ({ 
   id, 
   name, 
-  imageUrl, 
+  imageUrl,
   description
 }) => {
   const location = useLocation();
@@ -109,12 +77,15 @@ const SubjectCard: React.FC<SubjectCardProps> = ({
   const formattedSubject = formatSubjectForUrl(name);
   const linkTo = `/watch?board=${board}&grade=${textGrade}&subject=${formattedSubject}`;
 
+  // Get the local image based on subject name
+  const subjectImage = getSubjectImage(name);
+
   const cardContent = (
-    <div className="group  h-full flex flex-col overflow-hidden rounded-lg shadow-lg transition-all duration-300 hover:shadow-xl bg-white">
+    <div className="group h-full flex flex-col overflow-hidden rounded-lg shadow-lg transition-all duration-300 hover:shadow-xl bg-white">
       <div className="flex-shrink-0 relative h-48 overflow-hidden">
         <img 
           className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" 
-          src={imageUrl} 
+          src={subjectImage}
           alt={name} 
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -149,16 +120,67 @@ const SubjectCard: React.FC<SubjectCardProps> = ({
 };
 
 export const SubjectsPage: React.FC = () => {
+  const [subjects, setSubjects] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchSubjects = async () => {
+      try {
+        const response = await GetAllSubjects();
+        console.log(response.data);
+        
+        setSubjects(response.data);
+        setLoading(false);
+      } catch (err: any) {
+        if (err.response?.status === 401) {
+          // Token expired or invalid
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          navigate('/login');
+        } else {
+          setError('Failed to load subjects. Please try again later.');
+        }
+        setLoading(false);
+      }
+    };
+
+    fetchSubjects();
+  }, [navigate]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <FaSpinner className="animate-spin text-4xl text-indigo-600" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-12">
+        <div className="text-red-600 mb-4">{error}</div>
+        <button 
+          onClick={() => window.location.reload()} 
+          className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
+        >
+          Try Again
+        </button>
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-6 sm:space-y-8 px-4 sm:px-0">
+    <div className="space-y-6 sm:space-y-8 px-4 sm:px-22">
       <div className="text-center">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">All Subjects</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mt-6">All Subjects</h1>
         <p className="mt-2 sm:mt-4 text-base sm:text-lg text-gray-600">
           Explore our comprehensive collection of subjects and start learning today
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:gap-10 sm:grid-cols-2 lg:grid-cols-3">
         {subjects.map((subject) => (
           <SubjectCard
             key={subject.id}

@@ -29,7 +29,6 @@ const Navbar: React.FC = () => {
       } catch (err) {
         console.error('Error parsing user data:', err);
         localStorage.removeItem('user');
-        setUserData(null);
       }
     } else {
       setUserData(null);
@@ -46,15 +45,24 @@ const Navbar: React.FC = () => {
         checkAuth();
       }
     };
+
+    // Add event listener for custom login event
+    const handleLoginEvent = () => {
+      checkAuth();
+    };
     
     window.addEventListener('storage', handleStorageChange);
-    window.addEventListener('login', checkAuth);
-    window.addEventListener('logout', checkAuth);
+    window.addEventListener('login', handleLoginEvent);
+    window.addEventListener('logout', handleLoginEvent);
+
+    // Check auth status every time component mounts
+    const interval = setInterval(checkAuth, 1000);
     
     return () => {
       window.removeEventListener('storage', handleStorageChange);
-      window.removeEventListener('login', checkAuth);
-      window.removeEventListener('logout', checkAuth);
+      window.removeEventListener('login', handleLoginEvent);
+      window.removeEventListener('logout', handleLoginEvent);
+      clearInterval(interval);
     };
   }, []);
 
@@ -76,14 +84,15 @@ const Navbar: React.FC = () => {
     setIsLoggedIn(false);
     setUserData(null);
     setIsProfileOpen(false);
+    // Dispatch logout event
     window.dispatchEvent(new Event('logout'));
     navigate('/');
   };
 
   // Define the active and inactive styles with popup animation
   const navLinkClasses = ({ isActive }: { isActive: boolean }) => {
-    const baseClasses = "px-3 py-2 rounded-md text-sm font-medium transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg";
-    const activeClasses = "text-indigo-700 bg-indigo-50 bg-opacity-70";
+    const baseClasses = "px-3 py-2 rounded-none text-lg primary-gradient font-medium transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg";
+    const activeClasses = "text-indigo-700 bg-indigo-50 bg-opacity-70 border-b-2 border-indigo-700";
     const inactiveClasses = "text-gray-700 hover:text-gray-900 hover:bg-gray-50 hover:bg-opacity-70";
     
     return `${baseClasses} ${isActive ? activeClasses : inactiveClasses}`;
@@ -99,7 +108,8 @@ const Navbar: React.FC = () => {
         <div className="flex justify-between h-16 items-center">
           <div className="flex-shrink-0 flex items-center">
             <Link to="/" className="flex items-center">
-              <img src={logo} alt="Learnomic Logo" className="w-35 ml-[-15px]" />
+              <img src={logo} alt="Learnomic Logo" className="w-35 mr-[10px]" />
+              <h1 className="text-4xl font-bold ml-[-20px] primary-gradient primary-font">Learnomic</h1>
             </Link>
           </div>
           
@@ -135,14 +145,14 @@ const Navbar: React.FC = () => {
               <div className="relative" ref={profileRef}>
                 <button
                   onClick={() => setIsProfileOpen(!isProfileOpen)}
-                  className="flex items-center justify-center w-8 h-8 rounded-full bg-[#8AB4F8] text-white font-medium text-lg transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg hover:bg-opacity-90 focus:outline-none"
+                  className="flex items-center justify-center w-8 h-8 rounded-full bg-[#8AB4F8] text-white font-medium text-lg transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg  focus:outline-none"
                 >
                   {userData?.name ? userData.name.charAt(0).toUpperCase() : 'U'}
                 </button>
 
                 {isProfileOpen && (
-                  <div className="absolute right-0 mt-2 w-80 bg-white/90 backdrop-blur-md rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 divide-y divide-gray-100 transform transition-all duration-300">
-                    <div className="p-4">
+                  <div className="absolute right-0 mt-2 w-80 bg-white/90 bg-white rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 divide-y divide-gray-100 transform transition-all duration-300">
+                    <div className="p-4 bg-white rounded-lg">
                       <div className="flex items-center space-x-3">
                         <div className="flex-shrink-0">
                           <div className="w-12 h-12 rounded-full bg-[#8AB4F8] flex items-center justify-center text-white text-2xl font-medium">
@@ -160,7 +170,7 @@ const Navbar: React.FC = () => {
                       </div>
                     </div>
 
-                    <div className="p-2">
+                    <div className="p-2 bg-white rounded-lg">
                       <Link
                         to="/profile"
                         className="group flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:bg-opacity-70 rounded-md transition-all duration-300 transform hover:-translate-y-1 hover:shadow-md"
@@ -200,79 +210,102 @@ const Navbar: React.FC = () => {
       
       {/* Mobile menu slide-in panel */}
       <div 
-        className={`fixed top-0 right-0 w-[70%] h-full bg-white shadow-lg z-50 transform transition-transform duration-300 ease-in-out md:hidden ${
+        className={`fixed top-0 right-0 w-[70%] h-full bg-white/90  shadow-lg z-50 transform transition-transform duration-300 ease-in-out md:hidden ${
           isMenuOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
-        <div className="flex justify-between items-center p-4 border-b border-gray-200 bg-white">
+        <div className="flex justify-between items-center p-4 bg-white">
           <h2 className="text-lg font-semibold text-gray-900">Menu</h2>
           <button 
             onClick={() => setIsMenuOpen(false)}
-            className="p-2 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100 focus:outline-none"
+            className="p-2 rounded-md text-gray-500 hover:text-gray-700 bg-gray-100 focus:outline-none"
           >
             <svg className="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
-
-        {/* User Profile Section (if logged in) */}
-        {isLoggedIn && (
-          <div className="px-4 py-4 border-b border-gray-200 bg-white">
-            <div className="flex items-center space-x-3">
-              <div className="flex-shrink-0">
-                <div className="w-12 h-12 rounded-full bg-[#8AB4F8] flex items-center justify-center text-white text-2xl font-medium">
-                  {userData?.name ? userData.name.charAt(0).toUpperCase() : 'U'}
-                </div>
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900 truncate">
-                  {userData?.name || 'User'}
-                </p>
-                <p className="text-sm text-gray-500 truncate">
-                  {userData?.email || 'No email provided'}
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
         
         <nav className="px-4 pt-4 pb-6 space-y-2 bg-white">
-          <NavLink 
-            to="/" 
-            className={({ isActive }) => 
-              `block px-3 py-3 rounded-md text-base font-medium transition-all duration-300 transform hover:-translate-y-1 hover:shadow-md ${
-                isActive ? 'text-indigo-700 bg-indigo-50 bg-opacity-70' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'
-              }`
-            }
-            end
-            onClick={() => setIsMenuOpen(false)}
-          > 
-            Home
-          </NavLink>
-          <NavLink 
-            to="/subjects" 
-            className={({ isActive }) => 
-              `block px-3 py-3 rounded-md text-base font-medium transition-all duration-300 transform hover:-translate-y-1 hover:shadow-md ${
-                isActive ? 'text-indigo-700 bg-indigo-50 bg-opacity-70' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'
-              }`
-            }
-            onClick={() => setIsMenuOpen(false)}
-          >
-            Subjects
-          </NavLink>
-          {!isLoggedIn && (
-            <NavLink 
-              to="/login" 
-              className={({ isActive }) => 
-                `block px-3 py-3 rounded-md text-base font-medium transition-all duration-300 transform hover:-translate-y-1 hover:shadow-md ${
-                  isActive ? 'text-indigo-700 bg-indigo-50 bg-opacity-70' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'
-                }`
-              }
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Login
-            </NavLink>
+          {isLoggedIn ? (
+            <>
+              <div className="flex items-center px-3 py-3">
+                <NavLink to="/profile" className="flex items-center"
+                 onClick={() => setIsMenuOpen(false)}
+                >
+                  <div className="w-8 h-8 rounded-full bg-[#8AB4F8] flex items-center justify-center text-white text-lg font-medium mr-3">
+                    {userData?.name ? userData.name.charAt(0).toUpperCase() : 'U'}
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-gray-900">{userData?.name || 'User'}</p>
+                    <p className="text-xs text-gray-500">{userData?.email || 'No email provided'}</p>
+                  </div>
+                </NavLink>
+              </div>
+
+              <NavLink 
+                to="/" 
+                className={({ isActive }) => 
+                  `block px-3 py-3 rounded-md text-base font-medium transition-all duration-300 transform hover:-translate-y-1 hover:shadow-md ${
+                    isActive ? 'text-indigo-700 bg-indigo-50 border-b-2 border-indigo-700' : 'text-gray-700 hover:text-gray-900 bg-gray-50'
+                  }`
+                }
+                end
+                onClick={() => setIsMenuOpen(false)}
+              > 
+                Home
+              </NavLink>
+
+              <NavLink 
+                to="/subjects" 
+                className={({ isActive }) => 
+                  `block px-3 py-3 rounded-md text-base font-medium transition-all duration-300 transform hover:-translate-y-1 hover:shadow-md ${
+                    isActive ? 'text-indigo-700 bg-indigo-50 border-b-2 border-indigo-700' : 'text-gray-700 bg-white hover:text-gray-900 hover:bg-gray-50'
+                  }`
+                }
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Subjects
+              </NavLink>
+
+              <button
+                onClick={() => {
+                  handleLogout();
+                  setIsMenuOpen(false);
+                }}
+                className="w-full text-left px-3 py-3 rounded-md text-base font-medium text-red-600 hover:text-red-700 hover:bg-red-50 hover:bg-opacity-70 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-md"
+              >
+                <FaSignOutAlt className="inline-block mr-2" />
+                Sign out
+              </button>
+            </>
+          ) : (
+            <>
+              <NavLink 
+                to="/" 
+                className={({ isActive }) => 
+                  `block px-3 py-3 rounded-md text-base font-medium transition-all duration-300 transform hover:-translate-y-1 hover:shadow-md ${
+                    isActive ? 'text-indigo-700 bg-indigo-50 border-b-2 border-indigo-700' : 'text-gray-700 hover:text-gray-900 bg-gray-50'
+                  }`
+                }
+                end
+                onClick={() => setIsMenuOpen(false)}
+              > 
+                Home
+              </NavLink>
+
+              <NavLink 
+                to="/login" 
+                className={({ isActive }) => 
+                  `block px-3 py-3 rounded-md text-base font-medium transition-all duration-300 transform hover:-translate-y-1 hover:shadow-md ${
+                    isActive ? 'text-indigo-700 bg-indigo-50 border-b-2 border-indigo-700' : 'text-gray-700 hover:text-gray-900 bg-gray-50'
+                  }`
+                }
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Login
+              </NavLink>
+            </>
           )}
         </nav>
       </div>

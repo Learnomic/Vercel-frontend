@@ -1,4 +1,5 @@
 import apiClient from './apiClient';
+import { AxiosResponse } from 'axios';
 
 // Define API endpoints
 export const API_ENDPOINTS = {
@@ -10,7 +11,9 @@ export const API_ENDPOINTS = {
     RESET_PASSWORD: 'reset-password',
   },
   GetProfile: "user/profile",
-  Register: "signup"
+  Register: "signup",
+  GetAllSubjects: "subjects",
+  GetPlaylist: "user/playlists",
 };
 
 interface RegisterData {
@@ -38,4 +41,13 @@ export const authService = {
     localStorage.removeItem('user');
     return apiClient.post(API_ENDPOINTS.AUTH.LOGOUT, { refreshToken });
   },
+};
+
+export const GetAllSubjects = async () => {
+  const token = localStorage.getItem('token');
+  return apiClient.post(API_ENDPOINTS.GetAllSubjects, {}, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
 };

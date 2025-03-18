@@ -40,17 +40,17 @@ const Home: React.FC = () => {
           </p>
           <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
             <Link
-              to="/start-learning"
+              to="/subjects"
               className=" btn-gradient px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base font-medium rounded-md shadow-md hover:shadow-lg transition-all duration-300"
             >
               Start Learning
             </Link>
-            <Link
+            {/* <Link
               to="/signup"
               className="bg-white text-indigo-600 px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base font-medium rounded-md shadow-md hover:shadow-lg hover:bg-gray-50 transition-all duration-300"
             >
               Sign Up Now
-            </Link>
+            </Link> */}
           </div>
         </div>
       </section>

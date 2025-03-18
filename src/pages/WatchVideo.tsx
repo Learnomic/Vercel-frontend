@@ -1,27 +1,32 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../services/apiClient';
+import { API_ENDPOINTS } from '../services/apiServices';
+import { FaPlay } from 'react-icons/fa';
 
-interface Video {
+interface Playlist {
   board: string;
   grade: string;
+  playlist_id: string;
   subject: string;
+  thumbnail: string;
   title: string;
-  video_id: string;
+  video_count: number;
 }
 
 interface ApiResponse {
-  videos: Video[];
+  playlists: Playlist[];
 }
 
 const WatchVideo: React.FC = () => {
-  const [videos, setVideos] = useState<Video[]>([]);
+  const [playlists, setPlaylists] = useState<Playlist[]>([]);
+  const [selectedPlaylist, setSelectedPlaylist] = useState<Playlist | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>('');
   const location = useLocation();
 
   useEffect(() => {
-    const fetchVideos = async () => {
+    const fetchPlaylists = async () => {
       try {
         setLoading(true);
         // Get URL parameters
@@ -31,18 +36,26 @@ const WatchVideo: React.FC = () => {
         const subject = params.get('subject');
 
         // Make API call with parameters
-        const response = await axios.get<ApiResponse>(`http://localhost:5000/get_videos?board=${board}&grade=${grade}&subject=${subject}`);
+        const response = await apiClient.post<ApiResponse>(API_ENDPOINTS.GetPlaylist, {
+          board,
+          grade,
+          subject
+        });
         
-        setVideos(response.data.videos);
+        setPlaylists(response.data.playlists);
+        // Set the first playlist as selected by default
+        if (response.data.playlists.length > 0) {
+          setSelectedPlaylist(response.data.playlists[0]);
+        }
         setError('');
       } catch (err: any) {
-        setError(err.response?.data?.message || 'Failed to fetch videos');
+        setError(err.response?.data?.message || 'Failed to fetch playlists');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchVideos();
+    fetchPlaylists();
   }, [location]);
 
   if (loading) {
@@ -64,57 +77,83 @@ const WatchVideo: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">
-            {videos[0]?.subject || 'Course'} Videos
-          </h1>
-          <p className="mt-2 text-gray-600">
-            {videos[0]?.board} - Grade {videos[0]?.grade}
-          </p>
+    <div className="min-h-screen bg-gray-50">
+      <div className="flex">
+        {/* Left Sidebar */}
+        <div className="w-1/4 min-h-screen bg-white shadow-lg">
+          <div className="p-4 border-b">
+            <h2 className="text-xl font-semibold text-gray-900">
+              {playlists[0]?.subject || 'Course'} Videos
+            </h2>
+            <p className="text-sm text-gray-600 mt-1">
+              {playlists[0]?.board} - Grade {playlists[0]?.grade}
+            </p>
+          </div>
+          <div className="overflow-y-auto h-[calc(100vh-100px)]">
+            {playlists.map((playlist) => (
+              <button
+                key={playlist.playlist_id}
+                onClick={() => setSelectedPlaylist(playlist)}
+                className={`w-full text-left p-4 border-b hover:bg-gray-50 transition-colors duration-200 flex items-start space-x-3 ${
+                  selectedPlaylist?.playlist_id === playlist.playlist_id
+                    ? 'bg-indigo-50 border-l-4 border-indigo-600'
+                    : ''
+                }`}
+              >
+                <div className="flex-shrink-0 w-24">
+                  <img
+                    src={playlist.thumbnail}
+                    alt={playlist.title}
+                    className="w-full rounded-md"
+                  />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-sm font-medium text-gray-900 line-clamp-2">
+                    {playlist.title}
+                  </h3>
+                  <p className="text-xs text-gray-500 mt-1">
+                    {playlist.video_count} videos
+                  </p>
+                </div>
+                {selectedPlaylist?.playlist_id === playlist.playlist_id && (
+                  <FaPlay className="text-indigo-600 mt-1" />
+                )}
+              </button>
+            ))}
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {videos.map((video) => (
-            <div
-              key={video.video_id}
-              className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
-            >
-              <div className="aspect-w-16 aspect-h-9">
+        {/* Main Content - Video Player */}
+        <div className="flex-1 p-6">
+          {selectedPlaylist ? (
+            <div className="max-w-4xl mx-auto">
+              <div className="aspect-w-16 aspect-h-9 bg-black rounded-lg overflow-hidden shadow-lg">
                 <iframe
-                  src={`https://www.youtube.com/embed/${video.video_id}`}
-                  title={video.title}
+                  src={`https://www.youtube.com/embed/videoseries?list=${selectedPlaylist.playlist_id}`}
+                  title={selectedPlaylist.title}
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
                   className="w-full h-full"
                 ></iframe>
               </div>
-              <div className="p-4">
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  {video.title}
-                </h3>
-                <div className="flex items-center justify-between mt-2">
-                  <span className="text-sm text-gray-600">
-                    {video.subject} - Grade {video.grade}
-                  </span>
-                  <span className="text-sm text-gray-600">
-                    {video.board}
-                  </span>
-                </div>
+              <div className="mt-4">
+                <h1 className="text-2xl font-bold text-gray-900">
+                  {selectedPlaylist.title}
+                </h1>
+                <p className="mt-2 text-gray-600">
+                  {selectedPlaylist.board} - Grade {selectedPlaylist.grade} - {selectedPlaylist.subject}
+                </p>
               </div>
             </div>
-          ))}
+          ) : (
+            <div className="text-center py-12">
+              <h3 className="text-lg font-medium text-gray-900">No playlist selected</h3>
+              <p className="mt-2 text-gray-600">
+                Please select a playlist from the sidebar to start watching
+              </p>
+            </div>
+          )}
         </div>
-
-        {videos.length === 0 && (
-          <div className="text-center py-12">
-            <h3 className="text-lg font-medium text-gray-900">No videos found</h3>
-            <p className="mt-2 text-gray-600">
-              Please check back later for new content
-            </p>
-          </div>
-        )}
       </div>
     </div>
   );
