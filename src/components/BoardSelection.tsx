@@ -70,7 +70,10 @@ const BoardSelection: React.FC = () => {
   };
 
   const handleCompleteRegistration = async () => {
-    if (!selectedBoard || !selectedGrade) return;
+    if (!selectedBoard || !selectedGrade) {
+      setError("Please select both board and grade");
+      return;
+    }
 
     const registrationData = localStorage.getItem('registrationData');
     if (!registrationData) {
@@ -83,22 +86,56 @@ const BoardSelection: React.FC = () => {
 
     try {
       const basicData = JSON.parse(registrationData);
-      const completeData = {
-        ...basicData,
-        board: selectedBoard,
-        grade: selectedGrade
+      
+      // Convert grade number to string format (e.g., 9 to "NINE")
+      const gradeMap: { [key: number]: string } = {
+        1: 'ONE',
+        2: 'TWO',
+        3: 'THREE',
+        4: 'FOUR',
+        5: 'FIVE',
+        6: 'SIX',
+        7: 'SEVEN',
+        8: 'EIGHT',
+        9: 'NINE',
+        10: 'TEN',
+        11: 'ELEVEN',
+        12: 'TWELVE'
       };
 
-      await authService.register(completeData);
+      const completeData = {
+        name: basicData.name,
+        email: basicData.email,
+        password: basicData.password,
+        board: selectedBoard,
+        grade: gradeMap[selectedGrade] || selectedGrade.toString()
+      };
+
+      console.log('Sending registration data:', completeData); // Debug log
+
+      const response = await authService.register(completeData);
       
-      // Clear registration data
-      localStorage.removeItem('registrationData');
-      
-      // Show success message and redirect to login
-      alert("Registration successful! Please log in.");
-      navigate('/login');
+      if (response.data) {
+        // Clear registration data
+        localStorage.removeItem('registrationData');
+        
+        // Show success message
+        alert("Registration successful! Please log in.");
+        navigate('/login');
+      }
     } catch (err: any) {
-      setError(err.response?.data?.message || "Registration failed. Please try again.");
+      console.error('Registration error:', err);
+      
+      // Handle different types of errors
+      if (err.response?.data?.message) {
+        setError(err.response.data.message);
+      } else if (err.response?.status === 400) {
+        setError("Invalid registration data. Please check your information.");
+      } else if (err.response?.status === 409) {
+        setError("Email already exists. Please use a different email.");
+      } else {
+        setError("Registration failed. Please try again.");
+      }
     } finally {
       setIsLoading(false);
     }

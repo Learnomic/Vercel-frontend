@@ -69,22 +69,30 @@ const SignUp: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setIsLoading(true);
 
-    if (!validateForm()) {
-      return;
+    try {
+      if (!validateForm()) {
+        setIsLoading(false);
+        return;
+      }
+
+      // Store registration data in localStorage
+      const registrationData = {
+        name: formData.name,
+        email: formData.email,
+        password: formData.password
+      };
+      
+      localStorage.setItem('registrationData', JSON.stringify(registrationData));
+      
+      // Navigate to board selection
+      navigate('/board-selection');
+    } catch (error) {
+      setError("An error occurred during signup. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
-
-    // Store registration data in localStorage
-    const registrationData = {
-      name: formData.name,
-      email: formData.email,
-      password: formData.password
-    };
-    
-    localStorage.setItem('registrationData', JSON.stringify(registrationData));
-    
-    // Redirect to board selection
-    navigate('/board-selection');
   };
 
   return (
