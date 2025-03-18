@@ -1,7 +1,5 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios, { AxiosError } from "axios";
-import { authService } from "../services/apiServices";
 import logo from "../assets/learnomic.png";
 import sideImage from "../assets/sinupsideimage.jpg";
 
