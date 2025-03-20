@@ -9,10 +9,12 @@ import UserProfile from './pages/UserProfile'
 import { SubjectsPage } from './components/SubjectCard'
 import BoardSelection from './components/BoardSelection'
 import WatchVideo from './pages/WatchVideo'
+import Home1 from './pages/Home1'
 
 // Import layout
 import MainLayout from './components/MainLayout'
 import { useEffect, useState } from 'react'
+import YoutubePlayer from './pages/YoutubePlayer'
 
 // Protected Route Component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -60,7 +62,7 @@ function App() {
       <Routes>
         <Route path="/" element={<MainLayout />}>
           {/* Public Routes */}
-          <Route index element={<Home />} />
+          <Route index element={<Home1 />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
 
@@ -81,6 +83,11 @@ function App() {
           <Route path="/watch" element={
             <ProtectedRoute>
               <WatchVideo />
+            </ProtectedRoute>
+          } />
+          <Route path="/yt" element={
+            <ProtectedRoute>
+              <YoutubePlayer />
             </ProtectedRoute>
           } />
 

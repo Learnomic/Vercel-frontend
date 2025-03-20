@@ -13,7 +13,7 @@ export const API_ENDPOINTS = {
   GetProfile: "user/profile",
   Register: "signup",
   GetAllSubjects: "subjects",
-  GetPlaylist: "user/playlists",
+  GetPlaylist: "user/playlists?",
 };
 
 interface RegisterData {
