@@ -48,9 +48,9 @@ const Home1: React.FC = () => {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="text-5xl md:text-6xl font-bold leading-tight"
           >
-            <span className="block flex items-center">INTERACTIVE
+            <span className=" flex items-center">INTERACTIVE
             </span>
-            <span className="block primary-gradient flex items-center gap-2">
+            <span className=" primary-gradient flex items-center gap-2">
             LEARNING
              <Sparkles className="primary-gradient" size={30} />
             </span>
