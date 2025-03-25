@@ -1,59 +1,30 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios, { AxiosError } from 'axios';
+import { Formik, Form, Field, ErrorMessage } from 'formik';
+import * as Yup from 'yup';
+import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from 'react-icons/fa';
 import { authService } from '../services/apiServices';
 import logo from '../assets/learnomic.png';
 import sideImage from '../assets/sinupsideimage.jpg';
 
-interface ApiError {
-  message: string;
-  errors?: Record<string, string[]>;
-}
+const validationSchema = Yup.object({
+  email: Yup.string()
+    .email('Invalid email address')
+    .required('Email is required'),
+  password: Yup.string()
+    .required('Password is required'),
+  rememberMe: Yup.boolean(),
+});
 
 const Login: React.FC = () => {
-  const [formData, setFormData] = useState({
-    email: '',
-    password: ''
-  });
-  const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const validateForm = (): boolean => {
-    if (!formData.email || !formData.password) {
-      setError('Please fill in all fields');
-      return false;
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email)) {
-      setError('Please enter a valid email address');
-      return false;
-    }
-
-    return true;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!validateForm()) {
-      return;
-    }
-    
+  const handleSubmit = async (values: any) => {
     setIsLoading(true);
-    setError('');
-    
     try {
-      const response = await authService.login(formData.email, formData.password);
+      const response = await authService.login(values.email, values.password);
       
       // Store tokens and user data in localStorage
       localStorage.setItem('token', response.data.token);
@@ -65,40 +36,16 @@ const Login: React.FC = () => {
 
       // Redirect to home page or dashboard
       navigate('/');
-
-    } catch (err: unknown) {
-      if (axios.isAxiosError(err)) {
-        const error = err as AxiosError<ApiError>;
-        const serverError = error.response?.data;
-        
-        if (serverError?.message) {
-          setError(serverError.message);
-        } else if (serverError?.errors) {
-          // Handle validation errors
-          const errorValues = Object.values(serverError.errors || {});
-          const firstErrorArray = errorValues.length > 0 ? errorValues[0] : [];
-          const firstError = firstErrorArray.length > 0 ? firstErrorArray[0] : 'Invalid credentials';
-          setError(firstError);
-        } else if (error.response?.status === 401) {
-          setError('Invalid email or password');
-        } else if (error.response?.status === 429) {
-          setError('Too many login attempts. Please try again later.');
-        } else if (!error.response) {
-          setError('Network error. Please check your connection.');
-        } else {
-          setError('An unexpected error occurred. Please try again.');
-        }
-      } else {
-        setError('An unexpected error occurred. Please try again.');
-      }
+    } catch (error) {
+      console.error('Login error:', error);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#fffff] flex  justify-center p-4">
-      <div className="w-full max-w-[1000px] h-auto md:h-[600px] bg-white  shadow-xl flex overflow-hidden">
+    <div className="min-h-screen bg-[#fffff] flex justify-center p-4">
+      <div className="w-full max-w-[1000px] h-auto md:h-[600px] bg-white shadow-xl flex overflow-hidden">
         {/* Left side - Purple section with illustration */}
         <div className="hidden md:block w-1/2 bg-[#6161FF] relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-[#6161FF] to-[#897BFF]">
@@ -150,73 +97,89 @@ const Login: React.FC = () => {
             </p>
 
             <div className="mt-6">
-              {error && (
-                <div className="mb-4 bg-red-500/10 border-l-4 border-red-500 p-4 text-red-600">
-                  <p>{error}</p>
-                </div>
-              )}
+              <Formik
+                initialValues={{
+                  email: '',
+                  password: '',
+                  rememberMe: false
+                }}
+                validationSchema={validationSchema}
+                onSubmit={handleSubmit}
+              >
+                {({ errors, touched }) => (
+                  <Form className="space-y-6">
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <FaEnvelope className="h-5 w-5  text-blue-500" />
+                      </div>
+                      <Field
+                        name="email"
+                        type="email"
+                        className={`block w-full pl-10 appearance-none rounded-md border ${
+                          errors.email && touched.email ? 'border-red-500' : 'border-gray-300'
+                        } px-3 py-2 placeholder-gray-400 text-gray-900 focus:border-[#0EA9E1] focus:outline-none focus:ring-1 focus:ring-blue-800 sm:text-sm`}
+                        placeholder="Email address"
+                      />
+                    </div>
+                      <ErrorMessage name="email" component="div" className="text-red-500 text-sm mt-[-20px] mb-[5px]" />
 
-              <form className="space-y-6" onSubmit={handleSubmit}>
-                <div>
-                  <input
-                    id="email"
-                    name="email"
-                    type="email"
-                    autoComplete="email"
-                    required
-                    placeholder="Email address"
-                    value={formData.email}
-                    onChange={handleChange}
-                    disabled={isLoading}
-                    className="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 text-gray-900  focus:border-[#0EA9E1] focus:outline-none focus:ring-1 focus:ring-blue-800 sm:text-sm"
-                  />
-                </div>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <FaLock className="h-5 w-5 text-blue-500" />
+                      </div>
+                      <Field
+                        name="password"
+                        type={showPassword ? "text" : "password"}
+                        className={`block w-full pl-10 pr-10 appearance-none rounded-md border ${
+                          errors.password && touched.password ? 'border-red-500' : 'border-gray-300'
+                        } px-3 py-2 placeholder-gray-400 text-gray-900 focus:border-[#0EA9E1] focus:outline-none focus:ring-1 focus:ring-blue-800 sm:text-sm`}
+                        placeholder="Password"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                      >
+                        {showPassword ? (
+                          <FaEyeSlash className="h-5 w-5 text-gray-400" />
+                        ) : (
+                          <FaEye className="h-5 w-5 text-gray-400" />
+                        )}
+                      </button>
+                    </div>
+                      <ErrorMessage name="password" component="div" className="text-red-500 text-sm mt-[-20px] " />
 
-                <div>
-                  <input
-                    id="password"
-                    name="password"
-                    type="password"
-                    autoComplete="current-password"
-                    required
-                    placeholder="Password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    disabled={isLoading}
-                    className="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 text-gray-900  focus:border-[#0EA9E1] focus:outline-none focus:ring-1 focus:ring-blue-800 sm:text-sm"
-                  />
-                </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <Field
+                          type="checkbox"
+                          name="rememberMe"
+                          className="h-4 w-4 rounded border-gray-300 text-[#0EA9E1] focus:ring-[#0EA9E1]"
+                        />
+                        <label htmlFor="rememberMe" className="ml-2 block text-sm text-gray-900">
+                          Remember me
+                        </label>
+                      </div>
 
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <input
-                      id="remember-me"
-                      name="remember-me"
-                      type="checkbox"
-                      className="h-4 w-4 rounded border-gray-300 text-[#0EA9E1] focus:ring-[#0EA9E1]"
-                    />
-                    <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
-                      Remember me
-                    </label>
-                  </div>
+                      <div className="text-sm">
+                        <a href="#" className="font-medium text-[#0EA9E1] hover:text-[#1D2160]">
+                          Forgot your password?
+                        </a>
+                      </div>
+                    </div>
 
-                  <div className="text-sm">
-                    <a href="#" className="font-medium text-[#0EA9E1] hover:text-[#1D2160]">
-                      Forgot your password?
-                    </a>
-                  </div>
-                </div>
-
-                <div>
-                  <button
-                    type="submit"
-                    disabled={isLoading}
-                    className="flex w-full justify-center rounded-md border border-transparent bg-gradient-to-r from-[#1D2160] to-[#0EA9E1] py-2 px-4 text-sm font-medium text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-[#0EA9E1] focus:ring-offset-2 disabled:opacity-70 transition-all duration-200 mt-6"
-                  >
-                    {isLoading ? 'Signing in...' : 'Sign in'}
-                  </button>
-                </div>
-              </form>
+                    <div>
+                      <button
+                        type="submit"
+                        disabled={isLoading}
+                        className="flex w-full justify-center rounded-md border border-transparent bg-gradient-to-r from-[#1D2160] to-[#0EA9E1] py-2 px-4 text-sm font-medium text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-[#0EA9E1] focus:ring-offset-2 disabled:opacity-70 transition-all duration-200 mt-6"
+                      >
+                        {isLoading ? 'Signing in...' : 'Sign in'}
+                      </button>
+                    </div>
+                  </Form>
+                )}
+              </Formik>
             </div>
           </div>
         </div>

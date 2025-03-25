@@ -9,6 +9,7 @@ import UserProfile from './pages/UserProfile'
 import { SubjectsPage } from './components/SubjectCard'
 import BoardSelection from './components/BoardSelection'
 import ShowPlaylist from './pages/ShowPlaylist'
+import AdditionalInfo from './components/AdditionalInfo'
 // Import layout
 import MainLayout from './components/MainLayout'
 import { useEffect, useState } from 'react'
@@ -81,6 +82,11 @@ function App() {
           <Route path="/showPlaylist" element={
             <ProtectedRoute>
               <YoutubePlayer />
+            </ProtectedRoute>
+          } />
+          <Route path="/additional-info" element={
+            <ProtectedRoute>
+              <AdditionalInfo />
             </ProtectedRoute>
           } />
 

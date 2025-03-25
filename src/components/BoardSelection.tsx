@@ -25,16 +25,31 @@ const boards = [
 
 ];
 
+const numberToTextMap = {
+  1: 'ONE',
+  2: 'TWO',
+  3: 'THREE',
+  4: 'FOUR',
+  5: 'FIVE',
+  6: 'SIX',
+  7: 'SEVEN',
+  8: 'EIGHT',
+  9: 'NINE',
+  10: 'TEN',
+  11: 'ELEVEN',
+  12: 'TWELVE'
+};
+
 const grades = Array.from({ length: 12 }, (_, i) => ({
   id: i + 1,
   name: `Grade ${i + 1}`,
-  value: i + 1
+  value: numberToTextMap[i + 1 as keyof typeof numberToTextMap]
 }));
 
 const BoardSelection: React.FC = () => {
   const navigate = useNavigate();
   const [selectedBoard, setSelectedBoard] = useState<string | null>(null);
-  const [selectedGrade, setSelectedGrade] = useState<number | null>(null);
+  const [selectedGrade, setSelectedGrade] = useState<string | null>(null);
   const [currentStep, setCurrentStep] = useState(1);
   const [error, setError] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
@@ -54,7 +69,8 @@ const BoardSelection: React.FC = () => {
   };
 
   const handleGradeSelect = (gradeId: number) => {
-    setSelectedGrade(gradeId);
+    const textGrade = numberToTextMap[gradeId as keyof typeof numberToTextMap];
+    setSelectedGrade(textGrade);
   };
 
   const handleNext = () => {
@@ -172,7 +188,7 @@ const BoardSelection: React.FC = () => {
                 key={grade.id}
                 onClick={() => handleGradeSelect(grade.id)}
                 className={`p-3 sm:p-4 rounded-lg shadow-md transition-all duration-300 ${
-                  selectedGrade === grade.id
+                  selectedGrade === grade.value
                     ? 'bg-indigo-50 border-2 border-indigo-500 ring-2 ring-indigo-500 ring-opacity-50'
                     : 'bg-white hover:shadow-lg border-2 border-transparent'
                 }`}
@@ -224,4 +240,4 @@ const BoardSelection: React.FC = () => {
   );
 };
 
-export default BoardSelection; 
+export default BoardSelection;

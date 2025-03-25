@@ -12,10 +12,12 @@ export const API_ENDPOINTS = {
     RESET_PASSWORD: 'reset-password',
   },
   GetProfile: "user/profile",
+  UpdateProfile: "user/profile",
   Register: "signup",
   GetAllSubjects: "subjects",
   GetPlaylist: "user/playlists",
-  GetVideo: "playlist/videos?"
+  GetVideo: "playlist/videos?",
+  GenerateQuiz: "/generate_quiz"
 };
 
 interface RegisterData {

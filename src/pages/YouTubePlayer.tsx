@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { FaSpinner } from 'react-icons/fa';
+import { FaSpinner, FaRegCircle, FaCheckCircle } from 'react-icons/fa';
 import apiClient from '../services/apiClient';
+import { API_ENDPOINTS } from '../services/apiServices';
+import axios from 'axios';
 
 // Define interfaces
 interface Playlist {
@@ -22,8 +24,20 @@ interface Video {
   position: number;
 }
 
+interface Question {
+  question: string;
+  options: {
+    A: string;
+    B: string;
+    C: string;
+    D: string;
+  };
+  answer: string;
+  explanation: string;
+}
+
 interface QuizData {
-  quiz: string;
+  questions: Question[];
   error?: string;
 }
 
@@ -38,6 +52,8 @@ const YoutubePlayer: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [quizData, setQuizData] = useState<QuizData | null>(null);
   const [generatingQuiz, setGeneratingQuiz] = useState(false);
+  const [selectedAnswers, setSelectedAnswers] = useState<{ [key: number]: string }>({});
+  const [showAnswers, setShowAnswers] = useState(false);
   
   const navigate = useNavigate();
   const location = useLocation();
@@ -63,7 +79,7 @@ const YoutubePlayer: React.FC = () => {
           throw new Error('No token found');
         }
       
-        const response = await apiClient.get('user/playlists', {
+        const response = await apiClient.get(API_ENDPOINTS.GetPlaylist, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -120,7 +136,7 @@ const YoutubePlayer: React.FC = () => {
         throw new Error('No token found');
       }
 
-      const response = await apiClient.get('playlist/videos', {
+      const response = await apiClient.get(API_ENDPOINTS.GetVideo, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -175,20 +191,22 @@ const YoutubePlayer: React.FC = () => {
         throw new Error('No token found');
       }
       
-      const response = await apiClient.post('generate_quiz', {
+      const response = await apiClient.post(API_ENDPOINTS.GenerateQuiz, {
         video_id: selectedVideo.video_id
       }, {
         headers: {
           Authorization: `Bearer ${token}`,
         }
       });
+      console.log("quiz data",response.data);
+      
       
       setQuizData(response.data);
     } catch (err: any) {
       console.error('Error generating quiz:', err);
       setQuizData({
         error: err.response?.data?.error || 'Failed to generate quiz. Please try again.',
-        quiz: ''
+        questions: []
       });
     } finally {
       setGeneratingQuiz(false);
@@ -199,6 +217,17 @@ const YoutubePlayer: React.FC = () => {
     setSelectedVideo(video);
     // Clear any existing quiz data when a new video is selected
     setQuizData(null);
+  };
+
+  const handleOptionSelect = (questionIndex: number, option: string) => {
+    setSelectedAnswers(prev => ({
+      ...prev,
+      [questionIndex]: option
+    }));
+  };
+
+  const handleShowAnswers = () => {
+    setShowAnswers(true);
   };
 
   if (loading) {
@@ -311,7 +340,10 @@ const YoutubePlayer: React.FC = () => {
       </div>
 
       {/* Right content area - Video player and quiz */}
-      <div className="w-full md:w-2/3 lg:w-3/4 p-4 overflow-y-auto">
+      <div className="w-full md:w-2/3 lg:w-3/4 p-4 
+       scrollbar-hide
+       h-full
+      ">
         {selectedVideo ? (
           <div className="bg-white rounded-lg shadow-md overflow-hidden mb-4">
             {/* Video player */}
@@ -352,16 +384,92 @@ const YoutubePlayer: React.FC = () => {
 
         {/* Quiz Display */}
         {quizData && (
-          <div className="bg-white rounded-lg shadow-md p-4 mt-4">
-            <h2 className="text-xl font-bold text-gray-800 mb-4">Quiz</h2>
+          <div className="bg-white rounded-lg shadow-md p-6 mt-4">
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold text-gray-800">Quiz</h2>
+            </div>
+            
             {quizData.error ? (
               <div className="text-red-600">{quizData.error}</div>
             ) : (
-              <div className="prose max-w-none">
-                <pre className="whitespace-pre-wrap font-sans text-gray-900 bg-gray-50 p-4 rounded-md">
-                  {quizData.quiz}
-                </pre>
-              </div>
+              <>
+                <div className="space-y-8">
+                  {quizData.questions.map((question, questionIndex) => (
+                    <div key={questionIndex} className="bg-gray-50 rounded-xl p-6">
+                      <p className="text-lg font-medium text-gray-900 mb-4">
+                        {questionIndex + 1}. {question.question}
+                      </p>
+                      <div className="space-y-3">
+                        {Object.entries(question.options).map(([key, value]) => (
+                          <label
+                            key={key}
+                            onClick={() => handleOptionSelect(questionIndex, key)}
+                            className={`flex items-center space-x-3 p-3 rounded-lg cursor-pointer transition-all duration-200 ${
+                              selectedAnswers[questionIndex] === key
+                                ? 'bg-blue-50 border border-blue-200'
+                                : 'hover:bg-gray-100'
+                            } ${
+                              showAnswers
+                                ? key === question.answer
+                                  ? 'bg-green-50 border border-green-200'
+                                  : selectedAnswers[questionIndex] === key
+                                  ? 'bg-red-50 border border-red-200'
+                                  : ''
+                                : ''
+                            }`}
+                          >
+                            <div className="flex items-center">
+                              {showAnswers ? (
+                                key === question.answer ? (
+                                  <FaCheckCircle className="h-5 w-5 text-green-500" />
+                                ) : selectedAnswers[questionIndex] === key ? (
+                                  <FaRegCircle className="h-5 w-5 text-red-500" />
+                                ) : (
+                                  <FaRegCircle className="h-5 w-5 text-gray-400" />
+                                )
+                              ) : (
+                                <div
+                                  className={`h-5 w-5 rounded-full border-2 ${
+                                    selectedAnswers[questionIndex] === key
+                                      ? 'border-blue-500 bg-blue-500'
+                                      : 'border-gray-300'
+                                  } flex items-center justify-center`}
+                                >
+                                  {selectedAnswers[questionIndex] === key && (
+                                    <div className="h-2 w-2 rounded-full bg-white" />
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                            <span className={`flex-grow text-gray-700 ${
+                              showAnswers && key === question.answer ? 'font-medium' : ''
+                            }`}>
+                              {key}. {value}
+                            </span>
+                          </label>
+                        ))}
+                      </div>
+                      {showAnswers && (
+                        <div className="mt-4 p-4 bg-blue-50 rounded-lg">
+                          <p className="text-sm text-blue-800">
+                            <span className="font-medium">Explanation:</span> {question.explanation}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                {!showAnswers && Object.keys(selectedAnswers).length > 0 && (
+                  <div className="mt-8 flex justify-center">
+                    <button
+                      onClick={handleShowAnswers}
+                      className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200"
+                    >
+                      Check Answers
+                    </button>
+                  </div>
+                )}
+              </>
             )}
           </div>
         )}
