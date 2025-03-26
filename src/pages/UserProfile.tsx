@@ -126,7 +126,7 @@ const UserProfile: React.FC = () => {
             <div className="flex flex-col items-center text-center">
               <div className="w-36 h-36 rounded-full overflow-hidden mb-4 border-4 border-white shadow-lg">
                 <img 
-                  src={`https://ui-avatars.com/api/?name=${encodeURIComponent(userData.name)}&background=random&color=fff&size=128`} 
+                  src={`https://ui-avatars.com/api/?name=${encodeURIComponent(userData.name)}&length=1&background=random&color=fff&size=128`} 
                   alt={userData.name} 
                   className="w-full h-full object-cover"
                 />

@@ -54,6 +54,7 @@ const YoutubePlayer: React.FC = () => {
   const [generatingQuiz, setGeneratingQuiz] = useState(false);
   const [selectedAnswers, setSelectedAnswers] = useState<{ [key: number]: string }>({});
   const [showAnswers, setShowAnswers] = useState(false);
+  const [score, setScore] = useState<{ correct: number; total: number } | null>(null);
   
   const navigate = useNavigate();
   const location = useLocation();
@@ -178,12 +179,26 @@ const YoutubePlayer: React.FC = () => {
     }
   };
 
+  // Handle video selection
+  const handleVideoClick = (video: Video) => {
+    setSelectedVideo(video);
+    // Reset all quiz related states when changing video
+    setQuizData(null);
+    setSelectedAnswers({});
+    setShowAnswers(false);
+    setScore(null);
+  };
+
   // Generate quiz for the current video
   const handleGenerateQuiz = async () => {
     if (!selectedVideo) return;
     
     setGeneratingQuiz(true);
+    // Reset all quiz related states when generating new quiz
     setQuizData(null);
+    setSelectedAnswers({});
+    setShowAnswers(false);
+    setScore(null);
     
     try {
       const token = localStorage.getItem('token');
@@ -200,7 +215,6 @@ const YoutubePlayer: React.FC = () => {
       });
       console.log("quiz data",response.data);
       
-      
       setQuizData(response.data);
     } catch (err: any) {
       console.error('Error generating quiz:', err);
@@ -213,12 +227,6 @@ const YoutubePlayer: React.FC = () => {
     }
   };
 
-  const handleVideoClick = (video: Video) => {
-    setSelectedVideo(video);
-    // Clear any existing quiz data when a new video is selected
-    setQuizData(null);
-  };
-
   const handleOptionSelect = (questionIndex: number, option: string) => {
     setSelectedAnswers(prev => ({
       ...prev,
@@ -227,6 +235,13 @@ const YoutubePlayer: React.FC = () => {
   };
 
   const handleShowAnswers = () => {
+    // Calculate score
+    const correctAnswers = quizData?.questions.reduce((count, question, index) => {
+      return selectedAnswers[index] === question.answer ? count + 1 : count;
+    }, 0) || 0;
+    
+    const totalQuestions = quizData?.questions.length || 0;
+    setScore({ correct: correctAnswers, total: totalQuestions });
     setShowAnswers(true);
   };
 
@@ -385,8 +400,16 @@ const YoutubePlayer: React.FC = () => {
         {/* Quiz Display */}
         {quizData && (
           <div className="bg-white rounded-lg shadow-md p-6 mt-4">
-            <div className="mb-6">
+            <div className="mb-6 flex justify-between items-center">
               <h2 className="text-2xl font-bold text-gray-800">Quiz</h2>
+              {showAnswers && score && (
+                <div className="flex items-center space-x-2">
+                  <span className="text-lg font-semibold text-gray-700">Score:</span>
+                  <span className="px-4 py-2 bg-blue-100 text-blue-800 rounded-lg">
+                    {score.correct}/{score.total} ({Math.round((score.correct / score.total) * 100)}%)
+                  </span>
+                </div>
+              )}
             </div>
             
             {quizData.error ? (
