@@ -1,92 +1,62 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { Formik, Form, Field, ErrorMessage } from "formik";
+import * as Yup from "yup";
+import { FaUser, FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
 import logo from "../assets/learnomic.png";
 import sideImage from "../assets/sinupsideimage.jpg";
 
-interface ApiError {
-  message: string;
-  errors?: Record<string, string[]>;
-}
+const validationSchema = Yup.object({
+  name: Yup.string()
+    .min(2, "Name must be at least 2 characters")
+    .required("Name is required"),
+  email: Yup.string()
+    .email("Invalid email address")
+    .required("Email is required"),
+  password: Yup.string()
+    .min(8, "Password must be at least 8 characters")
+    .matches(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
+      "Password must contain at least one uppercase letter, one lowercase letter, and one number"
+    )
+    .required("Password is required"),
+  confirmPassword: Yup.string()
+    .oneOf([Yup.ref("password")], "Passwords must match")
+    .required("Confirm password is required"),
+  terms: Yup.boolean()
+    .oneOf([true], "You must accept the terms and conditions")
+    .required("You must accept the terms and conditions"),
+});
 
 const SignUp: React.FC = () => {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-    terms: false
-  });
-  const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, checked } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: checked,
-    }));
-  };
-
-   
-  const validateForm = (): boolean => {
-    if (
-      !formData.name ||
-      !formData.email ||
-      !formData.password ||
-      !formData.confirmPassword ||
-      !formData.terms
-    ) {
-      setError("Please fill in all fields and accept the terms");
-      return false;
+  const handleSubmit = async (values: any) => {
+    setIsLoading(true);
+    try {
+      // Store registration data in localStorage
+      const registrationData = {
+        name: values.name,
+        email: values.email,
+        password: values.password,
+      };
+      
+      localStorage.setItem('registrationData', JSON.stringify(registrationData));
+      
+      // Redirect to board selection
+      navigate('/board-selection');
+    } catch (error) {
+      console.error('Error during signup:', error);
+    } finally {
+      setIsLoading(false);
     }
-
-    if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match");
-      return false;
-    }
-
-    if (formData.password.length < 8) {
-      setError("Password must be at least 8 characters long");
-      return false;
-    }
-
-    return true;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-
-    if (!validateForm()) {
-      return;
-    }
-
-    // Store registration data in localStorage
-    const registrationData = {
-      name: formData.name,
-      email: formData.email,
-      password: formData.password
-    };
-    
-    localStorage.setItem('registrationData', JSON.stringify(registrationData));
-    
-    // Redirect to board selection
-    navigate('/board-selection');
   };
 
   return (
-    <div className="min-h-screen bg-[#fffff] flex  justify-center p-4">
+    <div className="min-h-screen bg-[#fffff] flex justify-center p-4">
       <div className="w-full max-w-[1000px] h-auto md:h-[600px] bg-white shadow-xl flex overflow-hidden">
         {/* Left side - Sign up form */}
         <div className="w-full md:w-1/2 bg-white p-4 md:p-8 flex flex-col">
@@ -105,106 +75,132 @@ const SignUp: React.FC = () => {
             </p>
 
             <div className="mt-6">
-              {error && (
-                <div className="mb-4 bg-red-500/10 border-l-4 border-red-500 p-4 text-red-600">
-                  <p>{error}</p>
-                </div>
-              )}
+              <Formik
+                initialValues={{
+                  name: "",
+                  email: "",
+                  password: "",
+                  confirmPassword: "",
+                  terms: false,
+                }}
+                validationSchema={validationSchema}
+                onSubmit={handleSubmit}
+              >
+                {({ errors, touched }) => (
+                  <Form className="space-y-4">
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <FaUser className="h-5 w-5 text-blue-500" />
+                      </div>
+                      <Field
+                        name="name"
+                        type="text"
+                        className={`block w-full pl-10 appearance-none rounded-md border ${
+                          errors.name && touched.name ? 'border-red-500' : 'border-gray-300'
+                        } px-3 py-2 placeholder-gray-400 text-gray-900 shadow-sm focus:border-[#0EA9E1] focus:outline-none focus:ring-1 focus:ring-[#0EA9E1] sm:text-sm`}
+                        placeholder="Student Name"
+                      />
+                    </div>
+                      <ErrorMessage name="name" component="div" className="text-red-500 text-sm mt-[-15px]" />
 
-              <form className="space-y-4" onSubmit={handleSubmit}>
-                <div>
-                  <input
-                    id="name"
-                    name="name"
-                    type="text"
-                    autoComplete="name"
-                    required
-                    placeholder="Student Name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    disabled={isLoading}
-                    className="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 text-gray-900 shadow-sm focus:border-[#0EA9E1] focus:outline-none focus:ring-1 focus:ring-[#0EA9E1] sm:text-sm"
-                  />
-                </div>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <FaEnvelope className="h-5 w-5 text-blue-500" />
+                      </div>
+                      <Field
+                        name="email"
+                        type="email"
+                        className={`block w-full pl-10 appearance-none rounded-md border ${
+                          errors.email && touched.email ? 'border-red-500' : 'border-gray-300'
+                        } px-3 py-2 placeholder-gray-400 text-gray-900 shadow-sm focus:border-[#0EA9E1] focus:outline-none focus:ring-1 focus:ring-[#0EA9E1] sm:text-sm`}
+                        placeholder="Email address"
+                      />
+                    </div>
+                      <ErrorMessage name="email" component="div" className="text-red-500 text-sm mt-[-15px]" />
 
-                <div>
-                  <input
-                    id="email"
-                    name="email"
-                    type="email"
-                    autoComplete="email"
-                    required
-                    placeholder="Email address"
-                    value={formData.email}
-                    onChange={handleChange}
-                    disabled={isLoading}
-                    className="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 text-gray-900 shadow-sm focus:border-[#0EA9E1] focus:outline-none focus:ring-1 focus:ring-[#0EA9E1] sm:text-sm"
-                  />
-                </div>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <FaLock className="h-5 w-5 text-blue-500" />
+                      </div>
+                      <Field
+                        name="password"
+                        type={showPassword ? "text" : "password"}
+                        className={`block w-full pl-10 pr-10 appearance-none rounded-md border ${
+                          errors.password && touched.password ? 'border-red-500' : 'border-gray-300'
+                        } px-3 py-2 placeholder-gray-400 text-gray-900 shadow-sm focus:border-[#0EA9E1] focus:outline-none focus:ring-1 focus:ring-[#0EA9E1] sm:text-sm`}
+                        placeholder="Password"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                      >
+                        {showPassword ? (
+                          <FaEyeSlash className="h-5 w-5 text-blue-500" />
+                        ) : (
+                          <FaEye className="h-5 w-5 text-blue-500" />
+                        )}
+                      </button>
+                    </div>
+                      <ErrorMessage name="password" component="div" className="text-red-500 text-sm mt-[-15px]" />
 
-                <div>
-                  <input
-                    id="password"
-                    name="password"
-                    type="password"
-                    autoComplete="new-password"
-                    required
-                    placeholder="Password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    disabled={isLoading}
-                    className="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 text-gray-900 shadow-sm focus:border-[#0EA9E1] focus:outline-none focus:ring-1 focus:ring-[#0EA9E1] sm:text-sm"
-                  />
-                </div>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <FaLock className="h-5 w-5 text-blue-500" />
+                      </div>
+                      <Field
+                        name="confirmPassword"
+                        type={showConfirmPassword ? "text" : "password"}
+                        className={`block w-full pl-10 pr-10 appearance-none rounded-md border ${
+                          errors.confirmPassword && touched.confirmPassword ? 'border-red-500' : 'border-gray-300'
+                        } px-3 py-2 placeholder-gray-400 text-gray-900 shadow-sm focus:border-[#0EA9E1] focus:outline-none focus:ring-1 focus:ring-[#0EA9E1] sm:text-sm`}
+                        placeholder="Confirm Password"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                      >
+                        {showConfirmPassword ? (
+                          <FaEyeSlash className="h-5 w-5 text-blue-500" />
+                        ) : (
+                          <FaEye className="h-5 w-5 text-blue-500" />
+                        )}
+                      </button>
+                    </div>
+                      <ErrorMessage name="confirmPassword" component="div" className="text-red-500 text-sm mt-[-15px]" />
 
-                <div>
-                  <input
-                    id="confirmPassword"
-                    name="confirmPassword"
-                    type="password"
-                    autoComplete="new-password"
-                    required
-                    placeholder="Confirm Password"
-                    value={formData.confirmPassword}
-                    onChange={handleChange}
-                    disabled={isLoading}
-                    className="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 text-gray-900 shadow-sm focus:border-[#0EA9E1] focus:outline-none focus:ring-1 focus:ring-[#0EA9E1] sm:text-sm"
-                  />
-                </div>
+                    <div className="flex items-center">
+                      <Field
+                        type="checkbox"
+                        name="terms"
+                        className="h-4 w-4 text-[#0EA9E1] focus:ring-[#0EA9E1] border-gray-300 rounded"
+                      />
+                      <label className="ml-2 block text-sm text-gray-900">
+                        I agree to the{' '}
+                        <Link to="/terms" className="font-medium text-[#0EA9E1] hover:text-[#1D2160]">
+                          Terms of Service
+                        </Link>{' '}
+                        and{' '}
+                        <Link to="/privacy" className="font-medium text-[#0EA9E1] hover:text-[#1D2160]">
+                          Privacy Policy
+                        </Link>
+                      </label>
+                    </div>
+                      <ErrorMessage name="terms" component="div" className="text-red-500 text-sm mt-[-15px]" />
 
-                <div className="flex items-center">
-                  <input
-                    id="terms"
-                    name="terms"
-                    type="checkbox"
-                    required
-                    checked={formData.terms}
-                    onChange={handleCheckboxChange}
-                    disabled={isLoading}
-                    className="h-4 w-4 text-[#0EA9E1] focus:ring-[#0EA9E1] border-gray-300 rounded"
-                  />
-                  <label htmlFor="terms" className="ml-2 block text-sm text-gray-900">
-                    I agree to the{' '}
-                    <Link to="/terms" className="font-medium text-[#0EA9E1] hover:text-[#1D2160]">
-                      Terms of Service
-                    </Link>{' '}
-                    and{' '}
-                    <Link to="/privacy" className="font-medium text-[#0EA9E1] hover:text-[#1D2160]">
-                      Privacy Policy
-                    </Link>
-                  </label>
-                </div>
-
-                <div>
-                  <button
-                    type="submit"
-                    disabled={isLoading}
-                    className="flex w-full justify-center rounded-md border border-transparent bg-gradient-to-r from-[#1D2160] to-[#0EA9E1] py-2 px-4 text-sm font-medium text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-[#0EA9E1] focus:ring-offset-2 disabled:opacity-70 transition-all duration-200 mt-6"
-                  >
-                    {isLoading ? "Signing up..." : "Sign up"}
-                  </button>
-                </div>
-              </form>
+                    <div>
+                      <button
+                        type="submit"
+                        disabled={isLoading}
+                        className="flex w-full justify-center rounded-md border border-transparent bg-gradient-to-r from-[#1D2160] to-[#0EA9E1] py-2 px-4 text-sm font-medium text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-[#0EA9E1] focus:ring-offset-2 disabled:opacity-70 transition-all duration-200 mt-6"
+                      >
+                        {isLoading ? "Signing up..." : "Sign up"}
+                      </button>
+                    </div>
+                  </Form>
+                )}
+              </Formik>
             </div>
           </div>
         </div>

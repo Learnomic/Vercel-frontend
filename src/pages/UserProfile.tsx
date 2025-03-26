@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import apiClient from '../services/apiClient';
-import { FaUser, FaEnvelope, FaGraduationCap, FaSchool } from 'react-icons/fa';
+import { FaUser, FaEnvelope, FaGraduationCap, FaSchool, FaInfoCircle, FaPhone, FaCalendar, FaBook, FaPencilAlt } from 'react-icons/fa';
 import { API_ENDPOINTS } from '../services/apiServices';
 
 interface UserData {
@@ -9,6 +9,11 @@ interface UserData {
   email: string;
   grade: string;
   board: string;
+  guardian_name?: string;
+  phone_number?: string;
+  dob?: string;
+  school_name?: string;
+  subject_interest?: string;
 }
 
 const UserProfile: React.FC = () => {
@@ -17,7 +22,12 @@ const UserProfile: React.FC = () => {
     name: '',
     email: '',
     grade: '',
-    board: ''
+    board: '',
+    guardian_name: '',
+    phone_number: '',
+    dob: '',
+    school_name: '',
+    subject_interest: ''
   });
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState<UserData>(userData);
@@ -66,12 +76,12 @@ const UserProfile: React.FC = () => {
     setError('');
 
     try {
-      const response = await apiClient.put(API_ENDPOINTS.GetProfile, formData);
+      const response = await apiClient.put(API_ENDPOINTS.UpdateProfile, formData);
       setUserData(response.data);
       setIsEditing(false);
       localStorage.setItem('user', JSON.stringify(response.data));
     } catch (err: any) {
-      console.error('Profile update error:', err); // Debug log
+      console.error('Profile update error:', err);
       setError('Failed to update profile. Please try again later.');
     } finally {
       setIsLoading(false);
@@ -80,7 +90,7 @@ const UserProfile: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-white py-12 px-4 sm:px-6">
+      <div className="min-h-screen  py-12 px-4 sm:px-6">
         <div className="max-w-3xl mx-auto">
           <div className="bg-white rounded-2xl shadow-xl p-8">
             <div className="animate-pulse space-y-6">
@@ -96,27 +106,135 @@ const UserProfile: React.FC = () => {
     );
   }
 
+  // Update the subject interests handling
+  const subjectInterests = Array.isArray(userData.subject_interest) 
+    ? userData.subject_interest 
+    : userData.subject_interest 
+      ? [userData.subject_interest] 
+      : [];
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-white py-12 px-4 sm:px-6">
-      <div className="max-w-3xl mx-auto">
-        <div className="bg-white rounded-2xl shadow-xl overflow-hidden transition-all duration-300">
-          <div className="px-6 py-8 sm:px-8 border-b border-gray-100">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0">
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">Profile Settings</h1>
-                <p className="mt-1 text-sm text-gray-500">
-                  Manage your account information and preferences
-                </p>
+    <div className="min-h-screen  py-12 px-4 sm:px-6">
+      <div className="max-w-4xl mx-auto">
+        <div className="relative bg-white rounded-2xl shadow-xl overflow-hidden transition-all duration-300">
+          {/* Background decorative elements */}
+          <div className="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40  rounded-full opacity-70 blur-xl"></div>
+          <div className="absolute bottom-0 left-0 -mb-10 -ml-10 w-40 h-40  rounded-full opacity-70 blur-xl"></div>
+          
+          <div className="relative z-10 p-8 flex flex-col md:flex-row gap-8">
+            {/* Profile Image and Name Section */}
+            <div className="flex flex-col items-center text-center">
+              <div className="w-36 h-36 rounded-full overflow-hidden mb-4 border-4 border-white shadow-lg">
+                <img 
+                  src={`https://ui-avatars.com/api/?name=${encodeURIComponent(userData.name)}&background=random&color=fff&size=128`} 
+                  alt={userData.name} 
+                  className="w-full h-full object-cover"
+                />
               </div>
-              {!isEditing && (
+              <h1 className="text-2xl font-bold text-gray-900 mb-2">{userData.name}</h1>
+              <div className="flex items-center space-x-2 text-indigo-600">
+                <FaGraduationCap />
+                <span>Grade {userData.grade}</span>
+              </div>
+              <div className="mt-2 text-gray-700">{userData.board}</div>
+              <div className="mt-4 space-x-2">
                 <button
                   onClick={() => setIsEditing(true)}
-                  className="bg-gradient-to-r from-[#1D2160] to-[#0EA9E1] px-4 py-2 text-sm font-medium text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5"
+                  className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2 text-sm shadow-md hover:bg-blue-700 transition-all"
                 >
-                  Edit Profile
+                  <FaPencilAlt />
+                  <span>Edit Profile</span>
                 </button>
-              )}
+              </div>
             </div>
+            
+            <div className="flex-1 grid md:grid-cols-2 gap-8">
+              {/* Contact Information */}
+              <div>
+                <h2 className="text-xl font-semibold text-gray-800 mb-4">Contact Information</h2>
+                <div className="space-y-4">
+                  <div className="flex items-start space-x-3">
+                    <FaEnvelope className="text-blue-500 mt-1" />
+                    <div>
+                      <p className="text-sm text-gray-500">Email</p>
+                      <p className="text-gray-800">{userData.email}</p>
+                    </div>
+                  </div>
+                  
+                  {userData.guardian_name && (
+                    <div className="flex items-start space-x-3">
+                      <FaUser className="text-blue-500 mt-1" />
+                      <div>
+                        <p className="text-sm text-gray-500">Guardian</p>
+                        <p className="text-gray-800">{userData.guardian_name}</p>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {userData.phone_number && (
+                    <div className="flex items-start space-x-3">
+                      <FaPhone className="text-blue-500 mt-1" />
+                      <div>
+                        <p className="text-sm text-gray-500">Phone</p>
+                        <p className="text-gray-800">{userData.phone_number}</p>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {userData.dob && (
+                    <div className="flex items-start space-x-3">
+                      <FaCalendar className="text-blue-500 mt-1" />
+                      <div>
+                        <p className="text-sm text-gray-500">Date of Birth</p>
+                        <p className="text-gray-800">{new Date(userData.dob).toLocaleDateString()}</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+              
+              {/* Academic Information */}
+              <div>
+                <h2 className="text-xl font-semibold text-gray-800 mb-4">Academic Information</h2>
+                <div className="space-y-4">
+                  {userData.school_name && (
+                    <div className="flex items-start space-x-3">
+                      <FaSchool className="text-blue-500 mt-1" />
+                      <div>
+                        <p className="text-sm text-gray-500">School</p>
+                        <p className="text-gray-800">{userData.school_name}</p>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {subjectInterests.length > 0 && (
+                    <div>
+                      <p className="text-sm text-gray-500 mb-2">Subjects of Interest</p>
+                      <div className="flex flex-wrap gap-2">
+                        {subjectInterests.map((subject, index) => (
+                          <span 
+                            key={index} 
+                            className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm"
+                          >
+                            {subject}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="px-8 pb-8 flex justify-end space-x-3">
+            <button
+              onClick={() => navigate('/additional-info')}
+              className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg flex items-center space-x-2 text-sm transition-all"
+            >
+              <FaInfoCircle />
+              <span>Additional Info</span>
+            </button>
           </div>
 
           {error && (
@@ -134,69 +252,15 @@ const UserProfile: React.FC = () => {
             </div>
           )}
           
-          {!isEditing ? (
-            <div className="px-6 py-6 sm:px-8 space-y-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div className="bg-gray-50 rounded-xl p-6 transition-all duration-300 hover:shadow-md">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-3 bg-indigo-100 rounded-lg">
-                      <FaUser className="h-5 w-5 text-indigo-600" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-500">Full Name</p>
-                      <p className="mt-1 text-lg font-medium text-gray-900">{userData.name}</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-gray-50 rounded-xl p-6 transition-all duration-300 hover:shadow-md">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-3 bg-blue-100 rounded-lg">
-                      <FaEnvelope className="h-5 w-5 text-blue-600" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-500">Email Address</p>
-                      <p className="mt-1 text-lg font-medium text-gray-900">{userData.email}</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-gray-50 rounded-xl p-6 transition-all duration-300 hover:shadow-md">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-3 bg-green-100 rounded-lg">
-                      <FaGraduationCap className="h-5 w-5 text-green-600" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-500">Grade</p>
-                      <p className="mt-1 text-lg font-medium text-gray-900">{userData.grade}</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-gray-50 rounded-xl p-6 transition-all duration-300 hover:shadow-md">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-3 bg-purple-100 rounded-lg">
-                      <FaSchool className="h-5 w-5 text-purple-600" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-500">Board</p>
-                      <p className="mt-1 text-lg font-medium text-gray-900">{userData.board}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="px-6 py-6 sm:px-8 space-y-6">
-              <div className="grid grid-cols-1 gap-6">
-                <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-                    Full Name
-                  </label>
-                  <div className="mt-1 relative rounded-md shadow-sm">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <FaUser className="h-5 w-5 text-gray-400" />
-                    </div>
+          {isEditing && (
+            <div className="absolute inset-0 bg-white/95 backdrop-blur-sm z-20 p-8">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">Edit Profile</h2>
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div>
+                    <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+                      Full Name
+                    </label>
                     <input
                       type="text"
                       name="name"
@@ -204,19 +268,14 @@ const UserProfile: React.FC = () => {
                       value={formData.name}
                       onChange={handleChange}
                       disabled={isLoading}
-                      className="pl-10 block w-full rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-300"
+                      className="w-full rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-300"
                     />
                   </div>
-                </div>
 
-                <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                    Email Address
-                  </label>
-                  <div className="mt-1 relative rounded-md shadow-sm">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <FaEnvelope className="h-5 w-5 text-gray-400" />
-                    </div>
+                  <div>
+                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                      Email Address
+                    </label>
                     <input
                       type="email"
                       name="email"
@@ -224,19 +283,14 @@ const UserProfile: React.FC = () => {
                       value={formData.email}
                       onChange={handleChange}
                       disabled={isLoading}
-                      className="pl-10 block w-full rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-300"
+                      className="w-full rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-300"
                     />
                   </div>
-                </div>
 
-                <div>
-                  <label htmlFor="grade" className="block text-sm font-medium text-gray-700">
-                    Grade
-                  </label>
-                  <div className="mt-1 relative rounded-md shadow-sm">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <FaGraduationCap className="h-5 w-5 text-gray-400" />
-                    </div>
+                  <div>
+                    <label htmlFor="grade" className="block text-sm font-medium text-gray-700 mb-1">
+                      Grade
+                    </label>
                     <input
                       type="text"
                       name="grade"
@@ -244,19 +298,14 @@ const UserProfile: React.FC = () => {
                       value={formData.grade}
                       onChange={handleChange}
                       disabled={isLoading}
-                      className="pl-10 block w-full rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-300"
+                      className="w-full rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-300"
                     />
                   </div>
-                </div>
 
-                <div>
-                  <label htmlFor="board" className="block text-sm font-medium text-gray-700">
-                    Board
-                  </label>
-                  <div className="mt-1 relative rounded-md shadow-sm">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <FaSchool className="h-5 w-5 text-gray-400" />
-                    </div>
+                  <div>
+                    <label htmlFor="board" className="block text-sm font-medium text-gray-700 mb-1">
+                      Board
+                    </label>
                     <input
                       type="text"
                       name="board"
@@ -264,33 +313,33 @@ const UserProfile: React.FC = () => {
                       value={formData.board}
                       onChange={handleChange}
                       disabled={isLoading}
-                      className="pl-10 block w-full rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-300"
+                      className="w-full rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-300"
                     />
                   </div>
                 </div>
-              </div>
 
-              <div className="flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-3 pt-6">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsEditing(false);
-                    setFormData(userData);
-                  }}
-                  disabled={isLoading}
-                  className="px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 transition-all duration-300"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="bg-gradient-to-r from-[#1D2160] to-[#0EA9E1] px-4 py-2 text-sm font-medium text-white rounded-lg shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0EA9E1] disabled:opacity-50 transition-all duration-300 transform hover:-translate-y-0.5"
-                >
-                  {isLoading ? 'Saving...' : 'Save Changes'}
-                </button>
-              </div>
-            </form>
+                <div className="flex justify-end space-x-3 pt-6">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsEditing(false);
+                      setFormData(userData);
+                    }}
+                    disabled={isLoading}
+                    className="px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 transition-all duration-300"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isLoading}
+                    className="bg-gradient-to-r from-[#1D2160] to-[#0EA9E1] px-4 py-2 text-sm font-medium text-white rounded-lg shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0EA9E1] disabled:opacity-50 transition-all duration-300 transform hover:-translate-y-0.5"
+                  >
+                    {isLoading ? 'Saving...' : 'Save Changes'}
+                  </button>
+                </div>
+              </form>
+            </div>
           )}
         </div>
       </div>

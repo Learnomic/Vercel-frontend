@@ -54,6 +54,10 @@ html {
   margin-right: auto;
 }
 
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
 @media (min-width: 640px) {
   .responsive-container {
     padding-left: 1.5rem;
