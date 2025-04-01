@@ -17,7 +17,7 @@ export const API_ENDPOINTS = {
   GetAllSubjects: "subjects",
   GetPlaylist: "user/playlists",
   GetVideo: "playlist/videos?",
-  GenerateQuiz: "/generate_quiz"
+  GenerateQuiz: "/video/complete_quiz"
 };
 
 interface RegisterData {
@@ -49,7 +49,7 @@ export const authService = {
 
 export const GetAllSubjects = async () => {
   const token = localStorage.getItem('token');
-  return apiClient.post(API_ENDPOINTS.GetAllSubjects, {}, {
+  return apiClient.get(API_ENDPOINTS.GetAllSubjects, {
     headers: {
       Authorization: `Bearer ${token}`
     }
