@@ -35,7 +35,7 @@ const Login: React.FC = () => {
       window.dispatchEvent(new Event('login'));
 
       // Redirect to home page or dashboard
-      navigate('/');
+      navigate('/subjects');
     } catch (error) {
       console.error('Login error:', error);
     } finally {

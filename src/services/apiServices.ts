@@ -17,7 +17,10 @@ export const API_ENDPOINTS = {
   GetAllSubjects: "subjects",
   GetPlaylist: "user/playlists",
   GetVideo: "playlist/videos?",
-  GenerateQuiz: "/video/complete_quiz"
+  GenerateQuiz: "/video/complete_quiz",
+  StoreVideoProgress: "/video/progress",
+  GetVideoPregress:"video/progress/?",
+  GetVideoHistory:"video/history",
 };
 
 interface RegisterData {
