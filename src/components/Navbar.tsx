@@ -141,6 +141,9 @@ const Navbar: React.FC = () => {
             <NavLink to="/subjects" className={navLinkClasses}>
               Subjects
             </NavLink>
+            <NavLink to="/dashboard" className={navLinkClasses}>
+              Dashboard
+            </NavLink>
             {isLoggedIn ? (
               <div className="relative" ref={profileRef}>
                 <button
