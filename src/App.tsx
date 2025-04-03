@@ -10,6 +10,7 @@ import { SubjectsPage } from './components/SubjectCard'
 import BoardSelection from './components/BoardSelection'
 import ShowPlaylist from './pages/ShowPlaylist'
 import AdditionalInfo from './components/AdditionalInfo'
+import About from './components/About'
 // Import layout
 import MainLayout from './components/MainLayout'
 import { useEffect, useState } from 'react'
@@ -65,6 +66,7 @@ function App() {
           <Route index element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
+         
 
           {/* Protected Routes */}
           <Route path="/profile" element={
@@ -75,6 +77,11 @@ function App() {
           <Route path="/subjects" element={
             <ProtectedRoute>
               <SubjectsPage />
+            </ProtectedRoute>
+          } />
+           <Route path="/about" element={
+            <ProtectedRoute>
+              <About />
             </ProtectedRoute>
           } />
           <Route path="/board-selection" element={        
