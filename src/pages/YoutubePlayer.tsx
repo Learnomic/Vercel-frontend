@@ -173,9 +173,8 @@ const YoutubePlayer: React.FC = () => {
         console.log("videos", videosWithDescription);
         
         setVideos(videosWithDescription);
-        
         // Calculate total duration
-        const totalSeconds = videosWithDescription.reduce((total, video) => {
+        const totalSeconds = videosWithDescription.reduce((total: number, video: Video) => {
           return total + convertDurationToSeconds(video.duration || "0:00");
         }, 0);
         
