@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { FaSpinner, FaRegCircle, FaCheckCircle, FaClock, FaArrowLeft, FaList, FaTimes } from 'react-icons/fa';
+import { FaSpinner, FaRegCircle, FaCheckCircle, FaClock, FaArrowLeft, FaList, FaTimes, FaLanguage } from 'react-icons/fa';
 import apiClient from '../services/apiClient';
 import { API_ENDPOINTS } from '../services/apiServices';
 import axios from 'axios';
@@ -16,6 +16,7 @@ interface Playlist {
   thumbnail: string;
   title: string;
   video_count: number;
+  subject_id?: string;
 }
 
 interface Video {
@@ -45,6 +46,11 @@ interface QuizData {
   error?: string;
 }
 
+interface Language {
+  code: string;
+  name: string;
+}
+
 const YoutubePlayer: React.FC = () => {
   // State variables
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
@@ -61,6 +67,10 @@ const YoutubePlayer: React.FC = () => {
   const [score, setScore] = useState<{ correct: number; total: number } | null>(null);
   const [totalDuration, setTotalDuration] = useState<string>("0:00");
   const [showSidebar, setShowSidebar] = useState(false);
+  const [languages, setLanguages] = useState<Language[]>([]);
+  const [selectedLanguage, setSelectedLanguage] = useState<string>("en");
+  const [translatingQuiz, setTranslatingQuiz] = useState(false);
+  const [originalQuizData, setOriginalQuizData] = useState<QuizData | null>(null);
   
   const navigate = useNavigate();
   const location = useLocation();
@@ -242,6 +252,32 @@ const YoutubePlayer: React.FC = () => {
     setShowSidebar(!showSidebar);
   };
 
+  // Fetch languages when component mounts
+  useEffect(() => {
+    const fetchLanguages = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          throw new Error('No token found');
+        }
+        
+        const response = await apiClient.get(API_ENDPOINTS.Language, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          }
+        });
+        
+        if (response.data && response.data.supported_languages) {
+          setLanguages(response.data.supported_languages);
+        }
+      } catch (err: any) {
+        console.error('Error fetching languages:', err);
+      }
+    };
+
+    fetchLanguages();
+  }, []);
+
   // Generate quiz for the current video
   const handleGenerateQuiz = async () => {
     if (!selectedVideo) return;
@@ -249,9 +285,11 @@ const YoutubePlayer: React.FC = () => {
     setGeneratingQuiz(true);
     // Reset all quiz related states when generating new quiz
     setQuizData(null);
+    setOriginalQuizData(null);
     setSelectedAnswers({});
     setShowAnswers(false);
     setScore(null);
+    setSelectedLanguage("en"); // Reset to English
     
     try {
       const token = localStorage.getItem('token');
@@ -269,6 +307,7 @@ const YoutubePlayer: React.FC = () => {
       console.log("quiz data",response.data);
       
       setQuizData(response.data);
+      setOriginalQuizData(response.data); // Save the original quiz data
     } catch (err: any) {
       console.error('Error generating quiz:', err);
       setQuizData({
@@ -280,6 +319,54 @@ const YoutubePlayer: React.FC = () => {
     }
   };
 
+  // Handle language change and translate quiz
+  const handleLanguageChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const langCode = e.target.value;
+    setSelectedLanguage(langCode);
+    
+    // If language is English, revert to original quiz data
+    if (langCode === "en" && originalQuizData) {
+      setQuizData(originalQuizData);
+      return;
+    }
+    
+    // Don't translate if no quiz data
+    if (!quizData || !quizData.questions || quizData.questions.length === 0) {
+      return;
+    }
+    
+    setTranslatingQuiz(true);
+    
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No token found');
+      }
+      
+      const response = await apiClient.post(API_ENDPOINTS.Translate, {
+        quiz_data: {
+          questions: quizData.questions
+        },
+        target_language: langCode
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        }
+      });
+      
+      if (response.data && response.data.translated_quiz) {
+        setQuizData({
+          questions: response.data.translated_quiz.questions
+        });
+      }
+    } catch (err: any) {
+      console.error('Error translating quiz:', err);
+      // Keep existing quiz data on error
+    } finally {
+      setTranslatingQuiz(false);
+    }
+  };
+
   const handleOptionSelect = (questionIndex: number, option: string) => {
     setSelectedAnswers(prev => ({
       ...prev,
@@ -287,15 +374,98 @@ const YoutubePlayer: React.FC = () => {
     }));
   };
 
-  const handleShowAnswers = () => {
+  const handleShowAnswers = async () => {
+    if (!selectedVideo || !selectedPlaylist || !quizData) return;
+    
     // Calculate score
-    const correctAnswers = quizData?.questions.reduce((count, question, index) => {
+    const correctAnswers = quizData.questions.reduce((count, question, index) => {
       return selectedAnswers[index] === question.answer ? count + 1 : count;
     }, 0) || 0;
     
-    const totalQuestions = quizData?.questions.length || 0;
+    const totalQuestions = quizData.questions.length || 0;
+    const scorePercentage = Math.round((correctAnswers / totalQuestions) * 100);
+    
+    const calculatedScore = { 
+      correct: correctAnswers, 
+      total: totalQuestions,
+      percentage: scorePercentage
+    };
+    
     setScore({ correct: correctAnswers, total: totalQuestions });
     setShowAnswers(true);
+    
+    // Format questions for the API
+    const formattedQuestions = quizData.questions.map((question, index) => ({
+      question: question.question,
+      options: [
+        question.options.A,
+        question.options.B,
+        question.options.C,
+        question.options.D
+      ],
+      correct_answer: question.answer
+    }));
+    
+    // Format user answers for the API
+    const formattedUserAnswers: Record<string, string> = {};
+    Object.keys(selectedAnswers).forEach(index => {
+      formattedUserAnswers[(parseInt(index) + 1).toString()] = selectedAnswers[parseInt(index)];
+    });
+    
+    // Get subject_id from the selected playlist or use fallbacks
+    let subject_id = "";
+    
+    // First try to get subject_id from selectedPlaylist
+    if (selectedPlaylist.subject_id) {
+      subject_id = selectedPlaylist.subject_id;
+    } 
+    // If not available and we have subjectFromState with an id field, use that
+    else if (typeof subjectFromState === 'object' && subjectFromState?.id) {
+      subject_id = subjectFromState.id;
+    }
+    // For cases where subjectFromState is just the subject name as a string
+    else if (typeof subjectFromState === 'string') {
+      // Try to find the corresponding subject_id from the playlist that matches the subject name
+      const matchingPlaylist = playlists.find(p => p.subject === subjectFromState && p.subject_id);
+      if (matchingPlaylist?.subject_id) {
+        subject_id = matchingPlaylist.subject_id;
+      }
+    }
+    // Otherwise, use the default empty string
+    
+    // Create the payload for the API call
+    const quizPayload = {
+      video_id: selectedVideo.video_id,
+      save_score: true,
+      playlist_id: selectedPlaylist.playlist_id,
+      subject_id: subject_id,
+      questions: formattedQuestions,
+      user_answers: formattedUserAnswers,
+      score: calculatedScore
+    };
+    
+    // Log the payload for debugging
+    console.log('Submitting quiz payload:', quizPayload);
+    
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No token found');
+      }
+      
+      // Submit quiz data to the server
+      await apiClient.post(API_ENDPOINTS.SubmitQuiz, quizPayload, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        }
+      });
+      
+      console.log('Quiz results submitted successfully');
+    } catch (err: any) {
+      console.error('Error submitting quiz results:', err);
+      // We don't show error to user to avoid disrupting their experience
+      // They still see their score even if submission fails
+    }
   };
 
   if (loading) {
@@ -547,6 +717,29 @@ const YoutubePlayer: React.FC = () => {
           <div className="bg-white rounded-lg shadow-md p-3 md:p-6 mt-4 mb-6">
             <div className="mb-4 md:mb-6 flex flex-col md:flex-row justify-between items-start md:items-center">
               <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-2 md:mb-0">Quiz</h2>
+              
+              {/* Language Selector */}
+              {languages.length > 0 && (
+                <div className="flex items-center mb-2 md:mb-0 mr-4">
+                  <div className="flex items-center bg-gray-50 rounded-lg p-2 border border-gray-200">
+                    <FaLanguage className="text-indigo-600 mr-2 text-lg" />
+                    <select
+                      value={selectedLanguage}
+                      onChange={handleLanguageChange}
+                      className="bg-transparent border-none text-gray-700 focus:outline-none text-sm"
+                      disabled={translatingQuiz}
+                    >
+                      {languages.map((lang) => (
+                        <option key={lang.code} value={lang.code}>
+                          {lang.name}
+                        </option>
+                      ))}
+                    </select>
+                    {translatingQuiz && <FaSpinner className="animate-spin ml-2 text-indigo-600" />}
+                  </div>
+                </div>
+              )}
+              
               {showAnswers && score && (
                 <div className="flex items-center space-x-2">
                   <span className="text-base md:text-lg font-semibold text-gray-700">Score:</span>

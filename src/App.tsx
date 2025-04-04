@@ -16,6 +16,7 @@ import MainLayout from './components/MainLayout'
 import { useEffect, useState } from 'react'
 import YoutubePlayer from './pages/YouTubePlayer'
 import VideoProgressDisplay from './components/VideoProgressDisplay'
+import Dashboard from './components/Dashboard'
 
 // Protected Route Component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -80,9 +81,9 @@ function App() {
             </ProtectedRoute>
           } />
            <Route path="/about" element={
-            <ProtectedRoute>
+            
               <About />
-            </ProtectedRoute>
+            
           } />
           <Route path="/board-selection" element={        
               <BoardSelection />
@@ -97,11 +98,11 @@ function App() {
               <AdditionalInfo />
             </ProtectedRoute>
           } />
-          {/* <Route path="/video-progress" element={
+          <Route path="/dashboard" element={
             <ProtectedRoute>
-              <VideoProgressDisplay />
+              <Dashboard />
             </ProtectedRoute>
-          } /> */}
+          } />
 
           {/* Catch all route - redirect to home */}
           <Route path="*" element={<Navigate to="/" replace />} />

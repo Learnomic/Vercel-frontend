@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import apiClient from '../services/apiClient';
-import { FaUser, FaEnvelope, FaGraduationCap, FaSchool, FaInfoCircle, FaPhone, FaCalendar, FaBook, FaPencilAlt } from 'react-icons/fa';
+import { FaUser, FaEnvelope, FaGraduationCap, FaSchool, FaInfoCircle, FaPhone, FaCalendar, FaBook, FaPencilAlt, FaMapMarkerAlt, FaIdCard } from 'react-icons/fa';
 import { API_ENDPOINTS } from '../services/apiServices';
 
 interface UserData {
@@ -13,6 +13,8 @@ interface UserData {
   phone_number?: string;
   dob?: string;
   school_name?: string;
+  division?: string;
+  pincode?: string;
   subject_interest?: string;
 }
 
@@ -27,6 +29,8 @@ const UserProfile: React.FC = () => {
     phone_number: '',
     dob: '',
     school_name: '',
+    division: '',
+    pincode: '',
     subject_interest: ''
   });
   const [isEditing, setIsEditing] = useState(false);
@@ -190,6 +194,16 @@ const UserProfile: React.FC = () => {
                       </div>
                     </div>
                   )}
+                  
+                  {userData.pincode && (
+                    <div className="flex items-start space-x-3">
+                      <FaMapMarkerAlt className="text-blue-500 mt-1" />
+                      <div>
+                        <p className="text-sm text-gray-500">Pincode</p>
+                        <p className="text-gray-800">{userData.pincode}</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
               
@@ -203,6 +217,16 @@ const UserProfile: React.FC = () => {
                       <div>
                         <p className="text-sm text-gray-500">School</p>
                         <p className="text-gray-800">{userData.school_name}</p>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {userData.division && (
+                    <div className="flex items-start space-x-3">
+                      <FaIdCard className="text-blue-500 mt-1" />
+                      <div>
+                        <p className="text-sm text-gray-500">Division</p>
+                        <p className="text-gray-800">{userData.division}</p>
                       </div>
                     </div>
                   )}
@@ -227,7 +251,7 @@ const UserProfile: React.FC = () => {
             </div>
           </div>
           
-          <div className="px-8 pb-8 flex justify-end space-x-3">
+          {/* <div className="px-8 pb-8 flex justify-end space-x-3">
             <button
               onClick={() => navigate('/additional-info')}
               className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg flex items-center space-x-2 text-sm transition-all"
@@ -235,7 +259,7 @@ const UserProfile: React.FC = () => {
               <FaInfoCircle />
               <span>Additional Info</span>
             </button>
-          </div>
+          </div> */}
 
           {error && (
             <div className="px-6 py-4 bg-red-50 border-l-4 border-red-400">
@@ -311,6 +335,68 @@ const UserProfile: React.FC = () => {
                       name="board"
                       id="board"
                       value={formData.board}
+                      onChange={handleChange}
+                      disabled={isLoading}
+                      className="w-full rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-300"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="school_name" className="block text-sm font-medium text-gray-700 mb-1">
+                      School Name
+                    </label>
+                    <input
+                      type="text"
+                      name="school_name"
+                      id="school_name"
+                      value={formData.school_name || ''}
+                      onChange={handleChange}
+                      disabled={isLoading}
+                      className="w-full rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-300"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="division" className="block text-sm font-medium text-gray-700 mb-1">
+                      Division
+                    </label>
+                    <input
+                      type="text"
+                      name="division"
+                      id="division"
+                      value={formData.division || ''}
+                      onChange={handleChange}
+                      disabled={isLoading}
+                      className="w-full rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-300"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="pincode" className="block text-sm font-medium text-gray-700 mb-1">
+                      Pincode
+                    </label>
+                    <input
+                      type="text"
+                      name="pincode"
+                      id="pincode"
+                      value={formData.pincode || ''}
+                      onChange={handleChange}
+                      maxLength={6}
+                      pattern="\d{6}"
+                      disabled={isLoading}
+                      className="w-full rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-300"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="phone_number" className="block text-sm font-medium text-gray-700 mb-1">
+                      Phone Number
+                    </label>
+                    <input
+                      type="tel"
+                      name="phone_number"
+                      id="phone_number"
+                      value={formData.phone_number || ''}
                       onChange={handleChange}
                       disabled={isLoading}
                       className="w-full rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-300"

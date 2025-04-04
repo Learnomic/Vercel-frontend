@@ -50,10 +50,14 @@ const BoardSelection: React.FC = () => {
   const navigate = useNavigate();
   const [selectedBoard, setSelectedBoard] = useState<string | null>(null);
   const [selectedGrade, setSelectedGrade] = useState<string | null>(null);
+  const [schoolName, setSchoolName] = useState<string>("");
+  const [division, setDivision] = useState<string>("");
+  const [pincode, setPincode] = useState<string>("");
   const [currentStep, setCurrentStep] = useState(1);
   const [error, setError] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
-  const totalSteps = 2;
+  const totalSteps = 3;
+  const [formValid, setFormValid] = useState(false);
 
   useEffect(() => {
     // Check if we have registration data
@@ -63,6 +67,16 @@ const BoardSelection: React.FC = () => {
       navigate('/signup');
     }
   }, [navigate]);
+
+  // Validate school info form
+  useEffect(() => {
+    setFormValid(
+      schoolName.trim() !== "" && 
+      division.trim() !== "" && 
+      pincode.trim() !== "" && 
+      /^\d{6}$/.test(pincode) // Validate pincode format (6 digits)
+    );
+  }, [schoolName, division, pincode]);
 
   const handleBoardSelect = (boardId: string) => {
     setSelectedBoard(boardId);
@@ -74,7 +88,13 @@ const BoardSelection: React.FC = () => {
   };
 
   const handleNext = () => {
-    if (currentStep < totalSteps && selectedBoard) {
+    if (currentStep < totalSteps) {
+      if (currentStep === 1 && !formValid) {
+        return;
+      }
+      if (currentStep === 2 && !selectedBoard) {
+        return;
+      }
       setCurrentStep(currentStep + 1);
     }
   };
@@ -86,7 +106,7 @@ const BoardSelection: React.FC = () => {
   };
 
   const handleCompleteRegistration = async () => {
-    if (!selectedBoard || !selectedGrade) return;
+    if (!schoolName || !division || !pincode || !selectedBoard || !selectedGrade) return;
 
     const registrationData = localStorage.getItem('registrationData');
     if (!registrationData) {
@@ -101,6 +121,9 @@ const BoardSelection: React.FC = () => {
       const basicData = JSON.parse(registrationData);
       const completeData = {
         ...basicData,
+        school_name: schoolName,
+        division: division,
+        pincode: pincode,
         board: selectedBoard,
         grade: selectedGrade
       };
@@ -120,6 +143,15 @@ const BoardSelection: React.FC = () => {
     }
   };
 
+  const getStepTitle = () => {
+    switch(currentStep) {
+      case 1: return 'School Information';
+      case 2: return 'Select Board';
+      case 3: return 'Select Grade';
+      default: return '';
+    }
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
       {error && (
@@ -135,7 +167,7 @@ const BoardSelection: React.FC = () => {
             Step {currentStep} of {totalSteps}
           </span>
           <span className="text-xs sm:text-sm font-medium text-indigo-600">
-            {currentStep === 1 ? 'Select Board' : 'Select Grade'}
+            {getStepTitle()}
           </span>
         </div>
         <div className="h-2 bg-gray-200 rounded-full">
@@ -147,6 +179,69 @@ const BoardSelection: React.FC = () => {
       </div>
 
       {currentStep === 1 ? (
+        <div className="space-y-6 sm:space-y-8">
+          <div className="text-center">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">School Information</h1>
+            <p className="mt-2 sm:mt-4 text-base sm:text-lg text-gray-600">
+              Please provide details about your school
+            </p>
+          </div>
+
+          <div className="max-w-md mx-auto bg-white p-6 rounded-lg shadow-md">
+            <div className="space-y-4">
+              <div>
+                <label htmlFor="school_name" className="block text-sm font-medium text-gray-700 mb-1">
+                  School Name
+                </label>
+                <input
+                  type="text"
+                  id="school_name"
+                  value={schoolName}
+                  onChange={(e) => setSchoolName(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  placeholder="Enter your school name"
+                  required
+                />
+              </div>
+              
+              <div>
+                <label htmlFor="division" className="block text-sm font-medium text-gray-700 mb-1">
+                  Division
+                </label>
+                <input
+                  type="text"
+                  id="division"
+                  value={division}
+                  onChange={(e) => setDivision(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  placeholder="Enter your division (e.g., A, B, C)"
+                  required
+                />
+              </div>
+              
+              <div>
+                <label htmlFor="pincode" className="block text-sm font-medium text-gray-700 mb-1">
+                  Pincode
+                </label>
+                <input
+                  type="text"
+                  id="pincode"
+                  value={pincode}
+                  onChange={(e) => setPincode(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  placeholder="Enter 6-digit pincode"
+                  maxLength={6}
+                  pattern="\d{6}"
+                  required
+                />
+                {pincode && !/^\d{6}$/.test(pincode) && (
+                  <p className="mt-1 text-sm text-red-600">Please enter a valid 6-digit pincode</p>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : currentStep === 2 ? (
         <div className="space-y-6 sm:space-y-8">
           <div className="text-center">
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Select Your Board</h1>
@@ -225,9 +320,9 @@ const BoardSelection: React.FC = () => {
         ) : (
           <button
             onClick={handleNext}
-            disabled={!selectedBoard}
+            disabled={(currentStep === 1 && !formValid) || (currentStep === 2 && !selectedBoard)}
             className={`px-4 sm:px-6 py-2 sm:py-3 rounded-md text-sm sm:text-base font-medium ${
-              selectedBoard
+              (currentStep === 1 && formValid) || (currentStep === 2 && selectedBoard) || (currentStep === 3)
                 ? 'btn-gradient'
                 : 'bg-gray-300 text-gray-500 cursor-not-allowed'
             }`}

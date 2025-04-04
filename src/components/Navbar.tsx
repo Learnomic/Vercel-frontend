@@ -141,6 +141,12 @@ const Navbar: React.FC = () => {
             <NavLink to="/subjects" className={navLinkClasses}>
               Subjects
             </NavLink>
+            <NavLink to="/dashboard" className={navLinkClasses}>
+              Dashboard
+            </NavLink>
+            <NavLink to="/about" className={navLinkClasses}>
+              About
+            </NavLink>
             {isLoggedIn ? (
               <div className="relative" ref={profileRef}>
                 <button
@@ -266,6 +272,30 @@ const Navbar: React.FC = () => {
                 onClick={() => setIsMenuOpen(false)}
               >
                 Subjects
+              </NavLink>
+
+              <NavLink 
+                to="/dashboard" 
+                className={({ isActive }) => 
+                  `block px-3 py-3 rounded-md text-base font-medium transition-all duration-300 transform hover:-translate-y-1 hover:shadow-md ${
+                    isActive ? 'text-indigo-700 bg-indigo-50 border-b-2 border-indigo-700' : 'text-gray-700 bg-white hover:text-gray-900 hover:bg-gray-50'
+                  }`
+                }
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Dashboard
+              </NavLink>
+
+              <NavLink 
+                to="/about" 
+                className={({ isActive }) => 
+                  `block px-3 py-3 rounded-md text-base font-medium transition-all duration-300 transform hover:-translate-y-1 hover:shadow-md ${
+                    isActive ? 'text-indigo-700 bg-indigo-50 border-b-2 border-indigo-700' : 'text-gray-700 bg-white hover:text-gray-900 hover:bg-gray-50'
+                  }`
+                }
+                onClick={() => setIsMenuOpen(false)}
+              >
+                About
               </NavLink>
 
               <button

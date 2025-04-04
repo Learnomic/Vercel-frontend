@@ -19,8 +19,13 @@ export const API_ENDPOINTS = {
   GetVideo: "playlist/videos?",
   GenerateQuiz: "/video/complete_quiz",
   StoreVideoProgress: "/video/progress",
-  GetVideoPregress:"video/progress/?",
+  SubmitQuiz: "/submit_quiz",
+  GetVideoPregress:"video/progress",
   GetVideoHistory:"video/history",
+  GetUserProgress:"user/progress",
+  GetAchievements:"user/achievements",
+  Language: "/supported_languages",
+  Translate: "/translate_quiz"
 };
 
 interface RegisterData {
@@ -29,6 +34,9 @@ interface RegisterData {
   password: string;
   board: string;
   grade: number;
+  school_name: string;
+  division: string;
+  pin_code: number;
 }
 
 // Auth services
