@@ -224,14 +224,6 @@ const YoutubePlayer: React.FC = () => {
   };
 
   // Handle playlist selection
-  const handlePlaylistChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const playlistId = e.target.value;
-    const playlist = playlists.find(p => p.playlist_id === playlistId);
-    if (playlist) {
-      setSelectedPlaylist(playlist);
-      fetchVideos(playlistId);
-    }
-  };
 
   // Handle video selection
   const handleVideoClick = (video: Video) => {
@@ -393,7 +385,7 @@ const YoutubePlayer: React.FC = () => {
     setShowAnswers(true);
     
     // Format questions for the API
-    const formattedQuestions = quizData.questions.map((question, index) => ({
+    const formattedQuestions = quizData.questions.map((question) => ({
       question: question.question,
       options: [
         question.options.A,

@@ -8,14 +8,13 @@ import SignUp from './pages/SignUp'
 import UserProfile from './pages/UserProfile'
 import { SubjectsPage } from './components/SubjectCard'
 import BoardSelection from './components/BoardSelection'
-import ShowPlaylist from './pages/ShowPlaylist'
 import AdditionalInfo from './components/AdditionalInfo'
 import About from './components/About'
 // Import layout
 import MainLayout from './components/MainLayout'
 import { useEffect, useState } from 'react'
-import YoutubePlayer from './pages/YouTubePlayer'
-import VideoProgressDisplay from './components/VideoProgressDisplay'
+import YoutubePlayer from './pages/YoutubePlayer'
+// import VideoProgressDisplay from './components/VideoProgressDisplay'
 import Dashboard from './components/Dashboard'
 
 // Protected Route Component

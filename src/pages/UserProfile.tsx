@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import apiClient from '../services/apiClient';
-import { FaUser, FaEnvelope, FaGraduationCap, FaSchool, FaInfoCircle, FaPhone, FaCalendar, FaBook, FaPencilAlt, FaMapMarkerAlt, FaIdCard } from 'react-icons/fa';
+import { FaUser, FaEnvelope, FaGraduationCap, FaSchool,  FaPhone, FaCalendar, FaPencilAlt, FaMapMarkerAlt, FaIdCard } from 'react-icons/fa';
 import { API_ENDPOINTS } from '../services/apiServices';
 
 interface UserData {

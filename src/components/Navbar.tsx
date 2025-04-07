@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import logo from '../assets/learnomic.png';
-import { FaUserCircle, FaSignOutAlt, FaCog } from 'react-icons/fa';
+import { FaSignOutAlt, FaCog } from 'react-icons/fa';
 
 interface UserData {
   name: string;

@@ -8,7 +8,7 @@ interface VideoProgressDisplayProps {
   progress?: number; // Assuming we'll get progress from somewhere
 }
 
-const VideoProgressDisplay: React.FC<VideoProgressDisplayProps> = ({ video_id, progress = 0 }) => {
+const VideoProgressDisplay: React.FC<VideoProgressDisplayProps> = ({ progress = 0 }) => {
   return (
     <div className="w-6 h-6 ml-2">
       <CircularProgressbar

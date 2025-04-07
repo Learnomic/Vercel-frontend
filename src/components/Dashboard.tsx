@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { 
-  ArrowRight, 
   BookOpen, 
   CheckCircle, 
   Clock, 
@@ -9,9 +7,7 @@ import {
   PlayCircle,
   TrendingUp,
   Award,
-  BarChart,
   Trophy,
-  Target
 } from 'lucide-react';
 import { API_ENDPOINTS } from '../services/apiServices';
 import apiClient from '../services/apiClient';

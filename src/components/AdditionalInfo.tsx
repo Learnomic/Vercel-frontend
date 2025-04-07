@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { FaUser, FaPhone, FaCalendar, FaSchool, FaBook } from 'react-icons/fa';
-import apiClient from '../services/apiClient';
+// import apiClient from '../services/apiClient';
 
 const validationSchema = Yup.object({
   guardian_name: Yup.string()
@@ -40,7 +40,7 @@ const AdditionalInfo: React.FC = () => {
         return;
       }
 
-      const response = await apiClient.post('/user/additional-info', values);
+      // const response = await apiClient.post('/user/additional-info', values);
       setSuccessMessage('Additional information updated successfully!');
       
       // Update the user data in localStorage

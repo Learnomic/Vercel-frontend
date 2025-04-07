@@ -1,6 +1,4 @@
 import apiClient from './apiClient';
-import { AxiosResponse } from 'axios';
-import axios from 'axios';
 
 // Define API endpoints
 export const API_ENDPOINTS = {

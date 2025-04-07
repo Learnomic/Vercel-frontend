@@ -1,4 +1,3 @@
-import React from 'react';
 import video1 from "../assets/Video1.mp4";
 import video2 from "../assets/Video2.mp4";
 import img1 from "../assets/thumb.jpg"
