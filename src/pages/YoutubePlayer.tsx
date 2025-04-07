@@ -3,7 +3,6 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { FaSpinner, FaRegCircle, FaCheckCircle, FaClock, FaArrowLeft, FaList, FaTimes, FaLanguage } from 'react-icons/fa';
 import apiClient from '../services/apiClient';
 import { API_ENDPOINTS } from '../services/apiServices';
-import axios from 'axios';
 import VideoProgressDisplay from '../components/VideoProgressDisplay';
 
 
