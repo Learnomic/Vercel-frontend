@@ -16,16 +16,16 @@ import { useEffect, useState } from 'react'
 import YoutubePlayer from './pages/YoutubePlayer'
 // import VideoProgressDisplay from './components/VideoProgressDisplay'
 import Dashboard from './components/Dashboard'
+// import Quiz from './pages/Quiz'
 
 // Protected Route Component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  // const [isAuthenticated, setIsAuthenticated] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const checkAuth = () => {
-      const token = localStorage.getItem('token');
-      setIsAuthenticated(!!token);
+      // setIsAuthenticated(true);
       setIsLoading(false);
     };
 
@@ -50,9 +50,9 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     return <div>Loading...</div>;
   }
 
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
+  // if (!isAuthenticated) {
+  //   return <Navigate to="/login" replace />;
+  // }
 
   return <>{children}</>;
 };
@@ -70,14 +70,14 @@ function App() {
 
           {/* Protected Routes */}
           <Route path="/profile" element={
-            <ProtectedRoute>
+           
               <UserProfile />
-            </ProtectedRoute>
+  
           } />
           <Route path="/subjects" element={
-            <ProtectedRoute>
+            
               <SubjectsPage />
-            </ProtectedRoute>
+           
           } />
            <Route path="/about" element={
             
@@ -88,20 +88,27 @@ function App() {
               <BoardSelection />
           } />
           <Route path="/showPlaylist" element={
-            <ProtectedRoute>
+            
               <YoutubePlayer />
-            </ProtectedRoute>
+         
           } />
           <Route path="/additional-info" element={
-            <ProtectedRoute>
+           
               <AdditionalInfo />
-            </ProtectedRoute>
+            
           } />
           <Route path="/dashboard" element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
+         <ProtectedRoute>
+
+           <Dashboard />
+         </ProtectedRoute>
+            
           } />
+          {/* <Route path="/quiz" element={
+           
+              <Quiz />
+            
+          } /> */}
 
           {/* Catch all route - redirect to home */}
           <Route path="*" element={<Navigate to="/" replace />} />

@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { GetAllSubjects } from '../services/apiServices';
+import { API_ENDPOINTS } from '../services/apiServices';
 import { FaSpinner } from 'react-icons/fa';
+import apiClient from '../services/apiClient';
 
-// Import subject images
-import mathImage from '../assets/MATH.jpg';
-import biologyImage from '../assets/BIOLOGY.jpeg';
-import physicsImage from '../assets/PHYSICS.jpg';
-import chemistryImage from '../assets/CHEMSTRY.jpg';
-import defaultImage from '../assets/education.jpg';
+// Assigned blob azure img to variables
+const mathImage = "https://learnomicstorage.blob.core.windows.net/learnomicstorage/MATH.jpg?sp=r&st=2025-04-08T06:44:14Z&se=2026-04-01T14:44:14Z&spr=https&sv=2024-11-04&sr=b&sig=EvT45eNFgycnQzLsSdUp0cGTMAWsqSsfJ9%2FoOIICdAA%3D"
+const biologyImage = "https://learnomicstorage.blob.core.windows.net/learnomicstorage/BIOLOGY.jpeg?sp=r&st=2025-04-08T06:48:34Z&se=2026-04-01T14:48:34Z&spr=https&sv=2024-11-04&sr=b&sig=dG8tvUsPZ0fsDPiCSbU%2FpRPJ4C9vDgtfC5uDIhWIHJc%3D"
+const physicsImage = "https://learnomicstorage.blob.core.windows.net/learnomicstorage/PHYSICS.jpg?sp=r&st=2025-04-08T06:49:03Z&se=2026-04-01T14:49:03Z&spr=https&sv=2024-11-04&sr=b&sig=tmbrIL0DI6vOTVko8%2FFZwAx8CZPDIaRXq1ApdOtvmSc%3D"
+const chemistryImage = "https://learnomicstorage.blob.core.windows.net/learnomicstorage/CHEMSTRY.jpg?sp=r&st=2025-04-08T06:49:36Z&se=2026-04-01T14:49:36Z&spr=https&sv=2024-11-04&sr=b&sig=P8YRiu89ae4Xmmbe1zMR7jz8GslQHfyoHJCSS%2FunYF8%3D"
+const defaultImage = "https://learnomicstorage.blob.core.windows.net/learnomicstorage/education.jpg?sp=r&st=2025-04-08T06:50:07Z&se=2026-04-01T14:50:07Z&spr=https&sv=2024-11-04&sr=b&sig=mVRelojD%2BxsGp%2FFdXtTbhhVsuLXMmHhCMFrffRBy5Ro%3D"
 
 // Map subject names to their corresponding images
 const getSubjectImage = (subjectName: string): string => {
@@ -16,34 +17,42 @@ const getSubjectImage = (subjectName: string): string => {
     'Mathematics': mathImage,
     'MATHEMATICS': mathImage,
     'MATH': mathImage,
+    'Math': mathImage,
     'Biology': biologyImage,
     'BIOLOGY': biologyImage,
+    'BOTANY': biologyImage,
+    'ZOOLOGY': biologyImage,
     'Physics': physicsImage,
     'PHYSICS': physicsImage,
     'Chemistry': chemistryImage,
-    'CHEMISTRY': chemistryImage
+    'CHEMISTRY': chemistryImage,
   };
   return imageMap[subjectName] || defaultImage;
 };
 
-
-
 // Helper function to format subject name for URL
 const formatSubjectForUrl = (subject: string): string => {
   if (subject.toLowerCase() === 'mathematics') {
-    return 'MATH';
+    return 'Mathematics';
   }
   return subject.toUpperCase().replace(/\s+/g, '%20');
 };
 
+// Interface for the API response
+interface Subject {
+  _id: string;
+  subject: string;
+}
+
 interface SubjectCardProps {
-  id: string | number;
+  id: string;
   name: string;
   imageUrl?: string;
   description?: string;
 }
 
 const SubjectCard: React.FC<SubjectCardProps> = ({ 
+  id,
   name, 
   description
 }) => {
@@ -55,7 +64,13 @@ const SubjectCard: React.FC<SubjectCardProps> = ({
   const handleSubjectClick = () => {
     // Format the subject name and navigate to the playlists page
     const formattedSubject = formatSubjectForUrl(name);
-    navigate('/showPlaylist', { state: { subject: formattedSubject } });
+    navigate('/showPlaylist', { 
+      state: { 
+        subject: formattedSubject,
+        subjectId: id,
+        subjectName: name
+      } 
+    });
   };
 
   const cardContent = (
@@ -95,55 +110,31 @@ const SubjectCard: React.FC<SubjectCardProps> = ({
 };
 
 export const SubjectsPage: React.FC = () => {
-  const [subjects, setSubjects] = useState<any[]>([]);
+  const [subjects, setSubjects] = useState<Subject[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const navigate = useNavigate();
-  const [userData, setUserData] = useState<any>(null);
-
-  useEffect(() => {
-    // Get user data from localStorage
-    const userStr = localStorage.getItem('user');
-    if (!userStr) {
-      navigate('/login');
-      return;
-    }
-    try {
-      const user = JSON.parse(userStr);
-      setUserData(user);
-    } catch (err) {
-      console.error('Error parsing user data:', err);
-      navigate('/login');
-      return;
-    }
-  }, [navigate]);
 
   useEffect(() => {
     const fetchSubjects = async () => {
       try {
-        const response = await GetAllSubjects();
+        setLoading(true);
+        // Updated API call to match new endpoint format
+        const response = await apiClient.get(`${API_ENDPOINTS.GetAllSubjects}`);
         console.log('API Response:', response.data);
         
-        // Ensure we're getting the correct data structure
-        const subjectsData = Array.isArray(response.data) ? response.data : [];
-        setSubjects(subjectsData);
-        setLoading(false);
+        // Set the subjects directly from the response data array
+        setSubjects(response.data);
+        setError(null);
       } catch (err: any) {
-        if (err.response?.status === 401) {
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
-          navigate('/login');
-        } else {
-          setError('Failed to load subjects. Please try again later.');
-        }
+        console.error('Error fetching subjects:', err);
+        setError('Failed to load subjects. Please try again later.');
+      } finally {
         setLoading(false);
       }
     };
 
-    if (userData) {
-      fetchSubjects();
-    }
-  }, [navigate, userData]);
+    fetchSubjects();
+  }, []);
 
   if (loading) {
     return (
@@ -168,27 +159,21 @@ export const SubjectsPage: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6 sm:space-y-8 px-4 sm:px-22  pt-6 pb-8">
+    <div className="space-y-6 sm:space-y-8 px-4 sm:px-22 pt-6 pb-8">
       <div className="text-center">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 ">All Subjects</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">All Subjects</h1>
         <p className="mt-2 sm:mt-4 text-base sm:text-lg text-gray-600">
           Explore our comprehensive collection of subjects and start learning today
         </p>
-        {userData && (
-          <p className="mt-2 text-sm text-indigo-600">
-            {userData.board} - Grade {userData.grade}
-          </p>
-        )}
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:gap-10 sm:grid-cols-2 lg:grid-cols-3 ">
+      <div className="grid grid-cols-1 gap-4 sm:gap-10 sm:grid-cols-2 lg:grid-cols-3">
         {subjects.map((subject, index) => (
           <SubjectCard
-            key={`${subject.name}-${index}`}
-            id={subject.id || index}
-            name={subject.name}
-            imageUrl={subject.imageUrl}
-            description={subject.description}
+            key={`${subject.subject}-${index}`}
+            id={subject._id}
+            name={subject.subject}
+            description={`CBSE - Grade 10`} // Static description since board and grade are now in query params
           />
         ))}
       </div>

@@ -3,38 +3,29 @@ import apiClient from './apiClient';
 // Define API endpoints
 export const API_ENDPOINTS = {
   AUTH: {
-    LOGIN: 'login',
+    LOGIN: 'auth/login',
     REFRESH_TOKEN: 'refresh-token',
     LOGOUT: 'logout',
     FORGOT_PASSWORD: 'forgot-password',
     RESET_PASSWORD: 'reset-password',
   },
-  GetProfile: "user/profile",
-  UpdateProfile: "user/profile",
-  Register: "signup",
-  GetAllSubjects: "subjects",
-  GetPlaylist: "user/playlists",
-  GetVideo: "playlist/videos?",
-  GenerateQuiz: "/video/complete_quiz",
-  StoreVideoProgress: "/video/progress",
-  SubmitQuiz: "/submit_quiz",
-  GetVideoPregress:"video/progress",
-  GetVideoHistory:"video/history",
-  GetUserProgress:"user/progress",
-  GetAchievements:"user/achievements",
-  Language: "/supported_languages",
-  Translate: "/translate_quiz"
+  GetProfile: "user",
+  UpdateProfile: "update-profile",
+  Register: "auth/register",
+  GetAllSubjects: "curriculum/subjects",
+  GetCurriculum: "/curriculum/subject/",
+  GetQuiz: "quiz?",
+  SubmitQuiz: "submit_quiz",
+  GetDashboard: "dashboard",
 };
 
+// Updated RegisterData interface without school information
 interface RegisterData {
   name: string;
   email: string;
   password: string;
   board: string;
-  grade: number;
-  school_name: string;
-  division: string;
-  pin_code: number;
+  grade: string | number;
 }
 
 // Auth services
@@ -49,21 +40,43 @@ export const authService = {
  
   logout: () => {
     const refreshToken = localStorage.getItem('refreshToken');
+    
+    // Clear all tokens and user data
     localStorage.removeItem('token');
+    localStorage.removeItem('authToken');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('user');
-    return apiClient.post(API_ENDPOINTS.AUTH.LOGOUT, { refreshToken });
+    localStorage.removeItem('userData');
+    localStorage.removeItem('userId');
+    
+    // Clear any quiz-related session storage
+    sessionStorage.removeItem('pendingQuizSubmission');
+    sessionStorage.removeItem('quizVideoId');
+    
+    // Notify other components
+    window.dispatchEvent(new Event('logout'));
+    
+    // Call the logout API endpoint if a refresh token exists
+    if (refreshToken) {
+      return apiClient.post(API_ENDPOINTS.AUTH.LOGOUT, { refreshToken });
+    }
+    
+    // If no refresh token, just return a resolved promise
+    return Promise.resolve({ data: { success: true } });
   },
 };
 
-export const GetAllSubjects = async () => {
-  const token = localStorage.getItem('token');
-  return apiClient.get(API_ENDPOINTS.GetAllSubjects, {
+// Function to submit quiz with token
+export const submitQuiz = (quizData: any) => {
+  const token = localStorage.getItem('authToken');
+  return apiClient.post(API_ENDPOINTS.SubmitQuiz, quizData, {
     headers: {
       Authorization: `Bearer ${token}`
     }
   });
 };
+
+
 
 export const GetPlaylistBySubject = async (board: string, grade: string) => {
   const token = localStorage.getItem('token');

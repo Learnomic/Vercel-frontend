@@ -1,17 +1,19 @@
 import React from 'react';
-import { FaChalkboardTeacher, FaHandsHelping, FaClock, FaBullseye, FaUsers, FaGraduationCap } from 'react-icons/fa';
+import { FaChalkboardTeacher, FaHandsHelping, FaClock
+  // , FaBullseye, FaUsers, FaGraduationCap 
+} from 'react-icons/fa';
 import { motion, useInView } from 'framer-motion';
 import { useRef } from 'react';
 
 const features = [
   {
-    title: 'Expert Instructors',
-    description: 'Learn from industry professionals and experienced educators.',
+    title: 'Quizzes and Tests',
+    description: 'Test your knowledge with interactive quizzes and tests.',
     icon: FaChalkboardTeacher
   },
   {
-    title: 'Interactive Learning',
-    description: 'Engage with hands-on exercises and real-world projects.',
+    title: 'Hands-On Learning',
+    description: 'Learn through hands-on activities and exercises.',
     icon: FaHandsHelping
   },
   {
@@ -19,21 +21,21 @@ const features = [
     description: 'Study at your own pace, anytime and anywhere.',
     icon: FaClock
   },
-  {
-    title: 'Personalized Learning',
-    description: 'Get customized recommendations based on your progress.',
-    icon: FaBullseye
-  },
-  {
-    title: 'Community Support',
-    description: 'Connect with fellow learners and share experiences.',
-    icon: FaUsers
-  },
-  {
-    title: 'Certified Courses',
-    description: 'Earn recognized certificates upon completion.',
-    icon: FaGraduationCap
-  }
+  // {
+  //   title: 'Personalized Learning',
+  //   description: 'Get customized recommendations based on your progress.',
+  //   icon: FaBullseye
+  // },
+  // {
+  //   title: 'Community Support',
+  //   description: 'Connect with fellow learners and share experiences.',
+  //   icon: FaUsers
+  // },
+  // {
+  //   title: 'Certified Courses',
+  //   description: 'Earn recognized certificates upon completion.',
+  //   icon: FaGraduationCap
+  // }
 ];
 
 const Features: React.FC = () => {

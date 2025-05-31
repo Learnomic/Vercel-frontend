@@ -1,10 +1,14 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { FaUser, FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
 import logo from "../assets/learnomic.png";
-import sideImage from "../assets/sinupsideimage.jpg";
+import apiClient from '../services/apiClient';
+import { API_ENDPOINTS } from '../services/apiServices';
+// import sideImage from "../assets/sinupsideimage.jpg";
+const sideImage = "https://learnomicstorage.blob.core.windows.net/learnomicstorage/sinupsideimage.jpg?sp=r&st=2025-04-08T06:51:56Z&se=2026-04-01T14:51:56Z&spr=https&sv=2024-11-04&sr=b&sig=YjbvDbkWrW3lZeIIm1T2eANdLScx%2FL9fPOmKIeCJiBI%3D"
+
 
 const validationSchema = Yup.object({
   name: Yup.string()
@@ -32,24 +36,120 @@ const SignUp: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const location = useLocation();
+  
+  // Parse URL parameters for quiz redirect data
+  const urlParams = new URLSearchParams(location.search);
+  const redirectFromQuery = urlParams.get('redirectFrom');
+  const videoIdQuery = urlParams.get('videoId');
+  
+  // Check if redirected from quiz (via state or query params)
+  const redirectedFromQuiz = location.state?.redirectFrom === 'quiz' || redirectFromQuery === 'quiz';
+  const videoId = location.state?.videoId || videoIdQuery;
+  
+  // Constant values for board and grade
+  const BOARD = "CBSE";
+  const GRADE = 10;
+  
+  // Function to submit quiz after signup
+  const submitQuizAfterSignup = async (token: string) => {
+    try {
+      // Get stored quiz submission
+      const pendingSubmissionStr = sessionStorage.getItem('pendingQuizSubmission');
+      
+      if (!pendingSubmissionStr) {
+        console.error('No pending quiz submission found');
+        return false;
+      }
+      
+      // Parse the stored quiz submission
+      const pendingSubmission = JSON.parse(pendingSubmissionStr);
+      
+      // Submit the quiz with the token
+      await apiClient.post(
+        API_ENDPOINTS.SubmitQuiz, 
+        pendingSubmission,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+      
+      console.log('Quiz submitted after signup successfully');
+      
+      // Clear session storage
+      sessionStorage.removeItem('pendingQuizSubmission');
+      sessionStorage.removeItem('quizVideoId');
+      
+      return true;
+    } catch (error) {
+      console.error('Error submitting quiz after signup:', error);
+      return false;
+    }
+  };
 
   const handleSubmit = async (values: any) => {
     setIsLoading(true);
+    setError(null);
+    
     try {
-      // Store registration data in localStorage
+      // Prepare registration payload
       const registrationData = {
         name: values.name,
         email: values.email,
         password: values.password,
+        board: BOARD,
+        grade: GRADE
       };
       
-      localStorage.setItem('registrationData', JSON.stringify(registrationData));
+      // Call registration API
+      const response = await apiClient.post(
+        API_ENDPOINTS.Register || '/auth/register', 
+        registrationData
+      );
       
-      // Redirect to board selection
-      navigate('/board-selection');
-    } catch (error) {
-      console.error('Error during signup:', error);
+      console.log('Registration successful:', response.data);
+      
+      // Store authentication data
+      const token = response.data.token;
+      
+      if (token) {
+        // Store token in both formats for compatibility
+        localStorage.setItem('authToken', token);
+        localStorage.setItem('token', token);
+        
+        // Store user data with the correct key
+        const userData = {
+          name: values.name,
+          email: values.email,
+          board: BOARD,
+          grade: GRADE
+        };
+        localStorage.setItem('user', JSON.stringify(userData));
+        
+        // Dispatch a login event to notify the app that a user has logged in
+        window.dispatchEvent(new Event('login'));
+        
+        // Check if redirected from quiz and submit quiz if needed
+        if (redirectedFromQuiz && videoId) {
+          const quizSubmitted = await submitQuizAfterSignup(token);
+          
+          if (quizSubmitted) {
+            // Redirect back to the video player with success message
+            window.location.href = `/showPlaylist?quizSaved=true&videoId=${videoId}`;
+            return;
+          }
+        }
+      }
+      
+      // If not redirected from quiz or if submission fails, go directly to home
+      navigate('/');
+    } catch (err: any) {
+      console.error('Error during registration:', err);
+      setError(err.response?.data?.message || 'Registration failed. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -70,9 +170,15 @@ const SignUp: React.FC = () => {
             <p className="mt-2 text-center text-sm text-gray-600">
               Or{" "}
               <Link to="/login" className="font-medium text-[#0EA9E1] hover:text-[#1D2160]">
-                sign in to your existing account
+                Login to your existing account
               </Link>
             </p>
+
+            {error && (
+              <div className="mt-4 p-3 border border-red-300 bg-red-50 text-red-600 text-sm rounded">
+                {error}
+              </div>
+            )}
 
             <div className="mt-6">
               <Formik

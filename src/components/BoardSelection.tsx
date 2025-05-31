@@ -25,25 +25,10 @@ const boards = [
 
 ];
 
-const numberToTextMap = {
-  1: 'ONE',
-  2: 'TWO',
-  3: 'THREE',
-  4: 'FOUR',
-  5: 'FIVE',
-  6: 'SIX',
-  7: 'SEVEN',
-  8: 'EIGHT',
-  9: 'NINE',
-  10: 'TEN',
-  11: 'ELEVEN',
-  12: 'TWELVE'
-};
-
 const grades = Array.from({ length: 12 }, (_, i) => ({
   id: i + 1,
   name: `Grade ${i + 1}`,
-  value: numberToTextMap[i + 1 as keyof typeof numberToTextMap]
+  value: (i + 1).toString()
 }));
 
 const BoardSelection: React.FC = () => {
@@ -83,8 +68,7 @@ const BoardSelection: React.FC = () => {
   };
 
   const handleGradeSelect = (gradeId: number) => {
-    const textGrade = numberToTextMap[gradeId as keyof typeof numberToTextMap];
-    setSelectedGrade(textGrade);
+    setSelectedGrade(gradeId.toString());
   };
 
   const handleNext = () => {
@@ -121,8 +105,8 @@ const BoardSelection: React.FC = () => {
       const basicData = JSON.parse(registrationData);
       const completeData = {
         ...basicData,
-        school_name: schoolName,
-        division: division,
+        school: schoolName,
+        div: division,
         pincode: pincode,
         board: selectedBoard,
         grade: selectedGrade
@@ -190,12 +174,12 @@ const BoardSelection: React.FC = () => {
           <div className="max-w-md mx-auto bg-white p-6 rounded-lg shadow-md">
             <div className="space-y-4">
               <div>
-                <label htmlFor="school_name" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="school" className="block text-sm font-medium text-gray-700 mb-1">
                   School Name
                 </label>
                 <input
                   type="text"
-                  id="school_name"
+                  id="school"
                   value={schoolName}
                   onChange={(e) => setSchoolName(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
@@ -205,12 +189,12 @@ const BoardSelection: React.FC = () => {
               </div>
               
               <div>
-                <label htmlFor="division" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="div" className="block text-sm font-medium text-gray-700 mb-1">
                   Division
                 </label>
                 <input
                   type="text"
-                  id="division"
+                  id="div"
                   value={division}
                   onChange={(e) => setDivision(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"

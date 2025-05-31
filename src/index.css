@@ -2,10 +2,11 @@
 @import "tailwindcss-animated";
 @font-face {
   font-family: 'MyCustomFont';
-  src: url('./assets/fonts/DEMO-florian-regular.otf') format('truetype');
+  src: url('/DEMO-florian-regular.otf') format('opentype');
   font-weight: normal;
   font-style: normal;
 }
+
 .primary-font{
   font-family: 'MyCustomFont', sans-serif;
 }
@@ -31,8 +32,10 @@ html {
 }
 .primary-gradient{
   background: linear-gradient(90deg, #1D2160 0%, #0EA9E1 100%);
+  background-clip: text;     
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  
 }
 
 .btn-gradient:hover {

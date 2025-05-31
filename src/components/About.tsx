@@ -1,6 +1,6 @@
-import video1 from "../assets/Video1.mp4";
-import video2 from "../assets/Video2.mp4";
-import img1 from "../assets/thumb.jpg"
+// import video1 from "../assets/Video1.mp4";
+// import video2 from "../assets/Video2.mp4";
+// import img1 from "../assets/thumb.jpg"
 
 const About = () => {
   return (
@@ -20,10 +20,10 @@ const About = () => {
               <video 
                 className="absolute inset-0 w-full h-full object-cover"
                 controls
-                controlsList="nodownload nofullscreen"
-                poster={img1}
+                // controlsList="nodownload nofullscreen"
+                poster="https://learnomicstorage.blob.core.windows.net/learnomicstorage/thumb.jpg?sp=r&st=2025-04-08T06:42:05Z&se=2026-04-01T14:42:05Z&spr=https&sv=2024-11-04&sr=b&sig=JLzoRfk7AJW9VfBzd5VxL0EYnKXReBhm4RpGhPYgTQw%3D"
               >
-                <source src={video1} type="video/mp4" />
+                <source src="https://learnomicstorage.blob.core.windows.net/learnomicstorage/Video1.mp4?sp=r&st=2025-04-08T06:27:42Z&se=2026-04-02T14:27:42Z&spr=https&sv=2024-11-04&sr=b&sig=cs0t8aD51mq5MgfmKPB2bJgsQJxr8IoeimxSOaKfpuU%3D" type="video/mp4" />
                 Your browser does not support the video tag.
               </video>
             </div>
@@ -70,9 +70,9 @@ const About = () => {
                 className="absolute inset-0 w-full h-full object-cover"
                 controls
                 controlsList="nodownload nofullscreen"
-                poster={img1}
+                poster="https://learnomicstorage.blob.core.windows.net/learnomicstorage/thumb.jpg?sp=r&st=2025-04-08T06:42:05Z&se=2026-04-01T14:42:05Z&spr=https&sv=2024-11-04&sr=b&sig=JLzoRfk7AJW9VfBzd5VxL0EYnKXReBhm4RpGhPYgTQw%3D"
               >
-                <source src={video2} type="video/mp4" />
+                <source src="https://learnomicstorage.blob.core.windows.net/learnomicstorage/Video2.mp4?sp=r&st=2025-04-08T06:25:56Z&se=2026-03-25T14:25:56Z&spr=https&sv=2024-11-04&sr=b&sig=EC%2FI8d7fjjx6FfAFHh9J4hy57JvJdf5ePHKGxvz2XxY%3D" type="video/mp4" />
                 Your browser does not support the video tag.
               </video>
             </div>

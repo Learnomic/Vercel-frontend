@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import apiClient from '../services/apiClient';
-import { FaUser, FaEnvelope, FaGraduationCap, FaSchool,  FaPhone, FaCalendar, FaPencilAlt, FaMapMarkerAlt, FaIdCard } from 'react-icons/fa';
+import { FaUser, FaEnvelope, FaGraduationCap,  FaPhone, FaCalendar, FaPencilAlt, FaMapMarkerAlt } from 'react-icons/fa';
 import { API_ENDPOINTS } from '../services/apiServices';
+import UpdateProfile from '../components/UpdateProfile';
 
 interface UserData {
   name: string;
@@ -12,8 +13,8 @@ interface UserData {
   guardian_name?: string;
   phone_number?: string;
   dob?: string;
-  school_name?: string;
-  division?: string;
+  school?: string;
+  div?: string;
   pincode?: string;
   subject_interest?: string;
 }
@@ -28,15 +29,15 @@ const UserProfile: React.FC = () => {
     guardian_name: '',
     phone_number: '',
     dob: '',
-    school_name: '',
-    division: '',
+    school: '',
+    div: '',
     pincode: '',
     subject_interest: ''
   });
   const [isEditing, setIsEditing] = useState(false);
-  const [formData, setFormData] = useState<UserData>(userData);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+  const [version, setVersion] = useState(0);
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -52,7 +53,6 @@ const UserProfile: React.FC = () => {
         
         const profileData = response.data;
         setUserData(profileData);
-        setFormData(profileData);
         localStorage.setItem('user', JSON.stringify(profileData));
         setError('');
       } catch (err: any) {
@@ -65,32 +65,6 @@ const UserProfile: React.FC = () => {
 
     fetchUserProfile();
   }, [navigate]);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError('');
-
-    try {
-      const response = await apiClient.put(API_ENDPOINTS.UpdateProfile, formData);
-      setUserData(response.data);
-      setIsEditing(false);
-      localStorage.setItem('user', JSON.stringify(response.data));
-    } catch (err: any) {
-      console.error('Profile update error:', err);
-      setError('Failed to update profile. Please try again later.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   if (isLoading) {
     return (
@@ -111,14 +85,17 @@ const UserProfile: React.FC = () => {
   }
 
   // Update the subject interests handling
-  const subjectInterests = Array.isArray(userData.subject_interest) 
-    ? userData.subject_interest 
-    : userData.subject_interest 
-      ? [userData.subject_interest] 
-      : [];
+  // const subjectInterests = Array.isArray(userData.subject_interest) 
+  //   ? userData.subject_interest 
+  //   : userData.subject_interest 
+  //     ? [userData.subject_interest] 
+  //     : [];
+
+  // Force re-render by creating a key based on version and userData
+  const profileKey = `profile-${version}-${userData.name}-${userData.grade}-${userData.board}`;
 
   return (
-    <div className="min-h-screen  py-12 px-4 sm:px-6">
+    <div className="min-h-screen  py-12 px-4 sm:px-6" key={profileKey}>
       <div className="max-w-4xl mx-auto">
         <div className="relative bg-white rounded-2xl shadow-xl overflow-hidden transition-all duration-300">
           {/* Background decorative elements */}
@@ -132,7 +109,7 @@ const UserProfile: React.FC = () => {
                 <img 
                   src={`https://ui-avatars.com/api/?name=${encodeURIComponent(userData.name)}&length=1&background=random&color=fff&size=128`} 
                   alt={userData.name} 
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover profile-avatar"
                 />
               </div>
               <h1 className="text-2xl font-bold text-gray-900 mb-2">{userData.name}</h1>
@@ -208,25 +185,25 @@ const UserProfile: React.FC = () => {
               </div>
               
               {/* Academic Information */}
-              <div>
+              {/* <div>
                 <h2 className="text-xl font-semibold text-gray-800 mb-4">Academic Information</h2>
                 <div className="space-y-4">
-                  {userData.school_name && (
+                  {userData.school && (
                     <div className="flex items-start space-x-3">
                       <FaSchool className="text-blue-500 mt-1" />
                       <div>
                         <p className="text-sm text-gray-500">School</p>
-                        <p className="text-gray-800">{userData.school_name}</p>
+                        <p className="text-gray-800">{userData.school}</p>
                       </div>
                     </div>
                   )}
                   
-                  {userData.division && (
+                  {userData.div && (
                     <div className="flex items-start space-x-3">
                       <FaIdCard className="text-blue-500 mt-1" />
                       <div>
                         <p className="text-sm text-gray-500">Division</p>
-                        <p className="text-gray-800">{userData.division}</p>
+                        <p className="text-gray-800">{userData.div}</p>
                       </div>
                     </div>
                   )}
@@ -247,7 +224,7 @@ const UserProfile: React.FC = () => {
                     </div>
                   )}
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
           
@@ -277,155 +254,20 @@ const UserProfile: React.FC = () => {
           )}
           
           {isEditing && (
-            <div className="absolute inset-0 bg-white/95 backdrop-blur-sm z-20 p-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Edit Profile</h2>
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div>
-                    <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-                      Full Name
-                    </label>
-                    <input
-                      type="text"
-                      name="name"
-                      id="name"
-                      value={formData.name}
-                      onChange={handleChange}
-                      disabled={isLoading}
-                      className="w-full rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-300"
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                      Email Address
-                    </label>
-                    <input
-                      type="email"
-                      name="email"
-                      id="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      disabled={isLoading}
-                      className="w-full rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-300"
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="grade" className="block text-sm font-medium text-gray-700 mb-1">
-                      Grade
-                    </label>
-                    <input
-                      type="text"
-                      name="grade"
-                      id="grade"
-                      value={formData.grade}
-                      onChange={handleChange}
-                      disabled={isLoading}
-                      className="w-full rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-300"
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="board" className="block text-sm font-medium text-gray-700 mb-1">
-                      Board
-                    </label>
-                    <input
-                      type="text"
-                      name="board"
-                      id="board"
-                      value={formData.board}
-                      onChange={handleChange}
-                      disabled={isLoading}
-                      className="w-full rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-300"
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="school_name" className="block text-sm font-medium text-gray-700 mb-1">
-                      School Name
-                    </label>
-                    <input
-                      type="text"
-                      name="school_name"
-                      id="school_name"
-                      value={formData.school_name || ''}
-                      onChange={handleChange}
-                      disabled={isLoading}
-                      className="w-full rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-300"
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="division" className="block text-sm font-medium text-gray-700 mb-1">
-                      Division
-                    </label>
-                    <input
-                      type="text"
-                      name="division"
-                      id="division"
-                      value={formData.division || ''}
-                      onChange={handleChange}
-                      disabled={isLoading}
-                      className="w-full rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-300"
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="pincode" className="block text-sm font-medium text-gray-700 mb-1">
-                      Pincode
-                    </label>
-                    <input
-                      type="text"
-                      name="pincode"
-                      id="pincode"
-                      value={formData.pincode || ''}
-                      onChange={handleChange}
-                      maxLength={6}
-                      pattern="\d{6}"
-                      disabled={isLoading}
-                      className="w-full rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-300"
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="phone_number" className="block text-sm font-medium text-gray-700 mb-1">
-                      Phone Number
-                    </label>
-                    <input
-                      type="tel"
-                      name="phone_number"
-                      id="phone_number"
-                      value={formData.phone_number || ''}
-                      onChange={handleChange}
-                      disabled={isLoading}
-                      className="w-full rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-300"
-                    />
-                  </div>
-                </div>
-
-                <div className="flex justify-end space-x-3 pt-6">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsEditing(false);
-                      setFormData(userData);
-                    }}
-                    disabled={isLoading}
-                    className="px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 transition-all duration-300"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={isLoading}
-                    className="bg-gradient-to-r from-[#1D2160] to-[#0EA9E1] px-4 py-2 text-sm font-medium text-white rounded-lg shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0EA9E1] disabled:opacity-50 transition-all duration-300 transform hover:-translate-y-0.5"
-                  >
-                    {isLoading ? 'Saving...' : 'Save Changes'}
-                  </button>
-                </div>
-              </form>
-            </div>
+            <UpdateProfile 
+              userData={userData}
+              onClose={() => setIsEditing(false)}
+              onUpdateSuccess={(updatedData) => {
+                console.log("Profile updated, new data:", updatedData);
+                // Force a hard update of the userData state to trigger re-render
+                setUserData({
+                  ...userData,
+                  ...updatedData
+                });
+                setIsEditing(false);
+                setVersion(v => v + 1);
+              }}
+            />
           )}
         </div>
       </div>

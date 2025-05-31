@@ -5,7 +5,8 @@ import * as Yup from 'yup';
 import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from 'react-icons/fa';
 import { authService } from '../services/apiServices';
 import logo from '../assets/learnomic.png';
-import sideImage from '../assets/sinupsideimage.jpg';
+// import sideImage from '../assets/sinupsideimage.jpg';
+const sideImage = "https://learnomicstorage.blob.core.windows.net/learnomicstorage/sinupsideimage.jpg?sp=r&st=2025-04-08T06:51:56Z&se=2026-04-01T14:51:56Z&spr=https&sv=2024-11-04&sr=b&sig=YjbvDbkWrW3lZeIIm1T2eANdLScx%2FL9fPOmKIeCJiBI%3D"
 
 const validationSchema = Yup.object({
   email: Yup.string()
@@ -87,7 +88,7 @@ const Login: React.FC = () => {
               <img src={logo} alt="Learnomic Logo" className="w-32 drop-shadow" />
             </div>
             <h2 className="mt-4 text-center text-2xl font-bold tracking-tight text-gray-900">
-              Sign in to your account
+              Login to your account
             </h2>
             <p className="mt-2 text-center text-sm text-gray-600">
               Or{' '}
@@ -149,7 +150,7 @@ const Login: React.FC = () => {
                     </div>
                       <ErrorMessage name="password" component="div" className="text-red-500 text-sm mt-[-20px] " />
 
-                    <div className="flex items-center justify-between">
+                    {/* <div className="flex items-center justify-between">
                       <div className="flex items-center">
                         <Field
                           type="checkbox"
@@ -166,7 +167,7 @@ const Login: React.FC = () => {
                           Forgot your password?
                         </a>
                       </div>
-                    </div>
+                    </div> */}
 
                     <div>
                       <button
@@ -174,7 +175,7 @@ const Login: React.FC = () => {
                         disabled={isLoading}
                         className="flex w-full justify-center rounded-md border border-transparent bg-gradient-to-r from-[#1D2160] to-[#0EA9E1] py-2 px-4 text-sm font-medium text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-[#0EA9E1] focus:ring-offset-2 disabled:opacity-70 transition-all duration-200 mt-6"
                       >
-                        {isLoading ? 'Signing in...' : 'Sign in'}
+                        {isLoading ? 'Logging...' : 'Login'}
                       </button>
                     </div>
                   </Form>
