@@ -10,7 +10,7 @@ interface MainLayoutProps {
 
 const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const location = useLocation();
-  const isYoutubePlayerPage = location.pathname === '/showPlaylist';
+  const isYoutubePlayerPage = location.pathname === '/learn';
 
   return (
     <div className="scrollbar-hide min-h-screen bg-gray-50 flex flex-col">

@@ -38,7 +38,7 @@ interface CurriculumResponse {
   };
 }
 
-const YoutubePlayer: React.FC = () => {
+const VideoPlayer: React.FC = () => {
   const [curriculumData, setCurriculumData] = useState<CurriculumResponse['data'] | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -497,4 +497,4 @@ const YoutubePlayer: React.FC = () => {
   );
 };
 
-export default YoutubePlayer;
+export default VideoPlayer;

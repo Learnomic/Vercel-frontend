@@ -64,7 +64,7 @@ const SubjectCard: React.FC<SubjectCardProps> = ({
   const handleSubjectClick = () => {
     // Format the subject name and navigate to the playlists page
     const formattedSubject = formatSubjectForUrl(name);
-    navigate('/showPlaylist', { 
+    navigate('/learn', { 
       state: { 
         subject: formattedSubject,
         subjectId: id,

@@ -139,7 +139,7 @@ const SignUp: React.FC = () => {
           
           if (quizSubmitted) {
             // Redirect back to the video player with success message
-            window.location.href = `/showPlaylist?quizSaved=true&videoId=${videoId}`;
+            window.location.href = `/learn?quizSaved=true&videoId=${videoId}`;
             return;
           }
         }

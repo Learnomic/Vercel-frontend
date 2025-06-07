@@ -13,7 +13,7 @@ import About from './components/About'
 // Import layout
 import MainLayout from './components/MainLayout'
 import { useEffect, useState } from 'react'
-import YoutubePlayer from './pages/YoutubePlayer'
+import VideoPlayer from './pages/VideoPlayer'
 // import VideoProgressDisplay from './components/VideoProgressDisplay'
 import Dashboard from './components/Dashboard'
 // import Quiz from './pages/Quiz'
@@ -87,9 +87,9 @@ function App() {
           <Route path="/board-selection" element={        
               <BoardSelection />
           } />
-          <Route path="/showPlaylist" element={
+          <Route path="/learn" element={
             
-              <YoutubePlayer />
+              <VideoPlayer />
          
           } />
           <Route path="/additional-info" element={

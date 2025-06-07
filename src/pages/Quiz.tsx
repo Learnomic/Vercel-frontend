@@ -245,12 +245,7 @@ const Quiz: React.FC<QuizProps> = ({ videoUrl, curriculumData }) => {
       
       const response = await apiClient.post(
         API_ENDPOINTS.SubmitQuiz,
-        quizResults,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
+        quizResults
       );
       
       console.log('Quiz results submitted successfully:', response.data);
