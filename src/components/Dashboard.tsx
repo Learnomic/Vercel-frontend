@@ -1,13 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { 
   BookOpen, 
-  Clock, 
   Film, 
-  PlayCircle,
   TrendingUp,
   Award,
   Trophy,
-  Flame,
   Target,
   Star,
   Users,
