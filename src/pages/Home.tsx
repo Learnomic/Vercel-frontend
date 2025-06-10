@@ -188,15 +188,15 @@ import { Link } from 'react-router-dom';
 import Features from '../components/Features';
 import { motion } from 'framer-motion';
 import { Brain, Sparkles, Activity, Wand2, Globe, Lightbulb, Rocket } from 'lucide-react';
-// import Translator from '../components/Translator';
+import Translator from '../components/Translator';
 
 const Home: React.FC = () => {
   return (
     <div>
       {/* Header with Translator positioned at top right */}
-      {/* <div className="absolute top-16 right-0 z-10">
+      <div className="absolute top-16 right-0 z-10">
         <Translator />
-      </div> */}
+      </div>
 
       <div className="w-full mx-auto px-6 md:px-12 py-9 md:py-10 bg-gradient-to-br from-slate-50 via-blue-100 to-blue-200">
         <div className="flex flex-col md:flex-row items-center gap-12 md:gap-16">

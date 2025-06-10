@@ -118,7 +118,6 @@ const SignUp: React.FC = () => {
       
       if (token) {
         // Store token in both formats for compatibility
-        localStorage.setItem('authToken', token);
         localStorage.setItem('token', token);
         
         // Store user data with the correct key

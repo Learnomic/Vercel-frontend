@@ -258,6 +258,12 @@ const Translator = () => {
       >
         मराठी
       </button>
+      <button
+        className={`px-3 py-1 ${currentLanguage === 'kn' ? 'btn-gradient' : 'primary-gradient'} text-white rounded text-sm hover:bg-yellow-600 transition-colors`}
+        onClick={() => setLanguage("kn")}
+      >
+        ಕನ್ನಡ
+      </button>
     </div>
   );
 };

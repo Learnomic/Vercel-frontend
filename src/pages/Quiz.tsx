@@ -97,7 +97,7 @@ const useAuth = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const checkLoginStatus = useCallback(() => {
-    const token = localStorage.getItem('authToken') || localStorage.getItem('token');
+    const token =localStorage.getItem('token');
     return !!token;
   }, []);
 
@@ -141,8 +141,8 @@ const useQuizData = (videoId: string | null) => {
     setError(null);
     
     try {
-      console.log('Fetching quiz for video ID:', videoId);
-      console.log('Full quiz URL:', `${API_ENDPOINTS.GetQuiz}videoUrl=${videoId}`);
+      // console.log('Fetching quiz for video ID:', videoId);
+      // console.log('Full quiz URL:', `${API_ENDPOINTS.GetQuiz}videoUrl=${videoId}`);
       const response = await apiClient.get(`${API_ENDPOINTS.GetQuiz}videoUrl=${videoId}`);
       
       if (response.data.success && response.data.data) {
@@ -216,14 +216,24 @@ const Quiz: React.FC<QuizProps> = ({ videoUrl, curriculumData }) => {
 
   // Find topic ID from curriculum data
   const findTopicId = useCallback((videoId: string): string => {
+    console.log('Curriculum ----------', curriculumData);
+    
     if (!curriculumData?.chapters) return '';
 
     for (const chapter of curriculumData.chapters) {
       for (const topic of chapter.topics || []) {
         for (const subtopic of topic.subtopics || []) {
           for (const video of subtopic.videos || []) {
-            if (video._id === videoId) {
+            console.log('Checking video:', video._id, 'against videoId:', videoId);
+            // if (video._id === videoId) {
+             if (video.videoUrl === videoUrl) {
+              console.log('Found topic ID:', topic._id);
+              console.log('Matched videoId:', videoId);
+              console.log('Chapter:', chapter.chapterName);
+              console.log('Topic:', topic.topicName);
+              console.log('Subtopic:', subtopic.subtopicName);
               return topic._id;
+              
             }
           }
         }
@@ -235,7 +245,8 @@ const Quiz: React.FC<QuizProps> = ({ videoUrl, curriculumData }) => {
   // Submit quiz results
   const submitQuizResults = useCallback(async (quizResults: QuizSubmission) => {
     try {
-      const token = localStorage.getItem('authToken') || localStorage.getItem('token');
+      const token =  localStorage.getItem('token');
+      console.log('Submitting quiz results with token:', token);
       
       if (!token) {
         throw new Error('No authentication token found');
@@ -296,6 +307,9 @@ const Quiz: React.FC<QuizProps> = ({ videoUrl, curriculumData }) => {
 
     const topicId = findTopicId(quizData.videoId);
 
+    console.log('topiccc iddd', topicId );
+    console.log('quiz dattta', quizData);
+    
     const submission: QuizSubmission = {
       quizId: quizData._id,
       videoId: quizData.videoId,
@@ -334,6 +348,9 @@ const Quiz: React.FC<QuizProps> = ({ videoUrl, curriculumData }) => {
         showResults: true,
       }));
 
+      // console.log('Final quiz results:', results);
+      
+
       // Auto-save if logged in
       if (isLoggedIn) {
         setState(prev => ({ ...prev, isSaving: true }));
@@ -362,7 +379,8 @@ const Quiz: React.FC<QuizProps> = ({ videoUrl, curriculumData }) => {
   const handleSaveQuiz = useCallback(async () => {
     if (!state.quizSubmission || !quizData) return;
 
-    const token = localStorage.getItem('authToken') || localStorage.getItem('token');
+    const token =  localStorage.getItem('token');
+    
     
     if (token) {
       setState(prev => ({ ...prev, isSaving: true, error: null }));

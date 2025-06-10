@@ -18,7 +18,7 @@ const apiClient = axios.create({
 apiClient.interceptors.request.use(
   (config) => {
     // Check for both token naming conventions
-    const token = localStorage.getItem('authToken') || localStorage.getItem('token');
+    const token =  localStorage.getItem('token');
     
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;

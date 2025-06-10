@@ -68,7 +68,7 @@ export const authService = {
 
 // Function to submit quiz with token
 export const submitQuiz = (quizData: any) => {
-  const token = localStorage.getItem('authToken');
+  const token = localStorage.getItem('token');
   return apiClient.post(API_ENDPOINTS.SubmitQuiz, quizData, {
     headers: {
       Authorization: `Bearer ${token}`

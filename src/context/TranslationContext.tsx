@@ -1,7 +1,7 @@
 // TranslationContext.tsx
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-type Language = "en" | "hi" | "mr";
+type Language = "en" | "hi" | "mr" | "kn";
 
 interface TranslationContextType {
   currentLanguage: Language;
@@ -56,7 +56,7 @@ export const TranslationProvider: React.FC<{children: React.ReactNode}> = ({ chi
         {
           pageLanguage: "en",
           autoDisplay: false,
-          includedLanguages: "en,hi,mr",
+          includedLanguages: "en,hi,mr,kn",
           layout: window.google.translate.TranslateElement.InlineLayout.SIMPLE
         },
         "google_translate_element"
