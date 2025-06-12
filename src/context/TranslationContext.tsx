@@ -68,7 +68,7 @@ export const TranslationProvider: React.FC<{children: React.ReactNode}> = ({ chi
             pageLanguage: "en",
             autoDisplay: false,
             // Use full language codes for better support
-            includedLanguages: "en,hi,mr-IN,kn-IN",
+            includedLanguages: "en,hi,mr,kn",
             layout: window.google.translate.TranslateElement.InlineLayout.SIMPLE,
             multilanguagePage: true, // Enable multilanguage support
             gaTrack: false, // Disable Google Analytics tracking
