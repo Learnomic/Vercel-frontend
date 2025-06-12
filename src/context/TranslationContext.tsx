@@ -280,6 +280,10 @@ const setLanguage = (lang: Language) => {
       const hasLang = Array.from(selectField.options).some(option => option.value === lang);
 
       if (hasLang) {
+        // Set cookie to force Google Translate to recognize the change
+        document.cookie = googtrans=/en/${lang};path=/;domain=${window.location.hostname};
+
+        // Update dropdown
         selectField.value = lang;
         selectField.dispatchEvent(new Event('change'));
 
@@ -287,6 +291,7 @@ const setLanguage = (lang: Language) => {
           setIsTransitioning(false);
           hideTopBar();
         }, 1000);
+
         return;
       }
     }
@@ -296,7 +301,7 @@ const setLanguage = (lang: Language) => {
     if (attempts < maxRetries) {
       setTimeout(trySetLanguage, 200);
     } else {
-      console.warn(`Failed to switch to language: ${lang}.`);
+      console.warn(Failed to switch to language: ${lang}.);
       setIsTransitioning(false);
     }
   };
