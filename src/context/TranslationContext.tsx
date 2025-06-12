@@ -266,6 +266,7 @@ export const TranslationProvider: React.FC<{children: React.ReactNode}> = ({ chi
     
     return () => observer.disconnect();
   }, [initialized]);
+
 const setLanguage = (lang: Language) => {
   setIsTransitioning(true);
   setCurrentLanguage(lang);
@@ -281,7 +282,7 @@ const setLanguage = (lang: Language) => {
 
       if (hasLang) {
         // Set cookie to force Google Translate to recognize the change
-        document.cookie = googtrans=/en/${lang};path=/;domain=${window.location.hostname};
+        document.cookie = `googtrans=/en/${lang};path=/;domain=${window.location.hostname}`;
 
         // Update dropdown
         selectField.value = lang;
@@ -301,13 +302,14 @@ const setLanguage = (lang: Language) => {
     if (attempts < maxRetries) {
       setTimeout(trySetLanguage, 200);
     } else {
-      console.warn(Failed to switch to language: ${lang}.);
+      console.warn(`Failed to switch to language: ${lang}.`);
       setIsTransitioning(false);
     }
   };
 
   trySetLanguage();
 };
+
 
   return (
     <TranslationContext.Provider value={{ currentLanguage, setLanguage, isTransitioning }}>
