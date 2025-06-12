@@ -266,34 +266,43 @@ export const TranslationProvider: React.FC<{children: React.ReactNode}> = ({ chi
     
     return () => observer.disconnect();
   }, [initialized]);
+const setLanguage = (lang: Language) => {
+  setIsTransitioning(true);
+  setCurrentLanguage(lang);
 
-  const setLanguage = (lang: Language) => {
-    setIsTransitioning(true); // Set transitioning to true when starting
-    setCurrentLanguage(lang);
-    
-    if (initialized) {
-      const selectField = document.querySelector('.goog-te-combo') as HTMLSelectElement;
-      if (selectField) {
+  const maxRetries = 20;
+  let attempts = 0;
+
+  const trySetLanguage = () => {
+    const selectField = document.querySelector('.goog-te-combo') as HTMLSelectElement;
+
+    if (selectField) {
+      const hasLang = Array.from(selectField.options).some(option => option.value === lang);
+
+      if (hasLang) {
         selectField.value = lang;
         selectField.dispatchEvent(new Event('change'));
-        
-        // Reset transitioning state after a delay
+
         setTimeout(() => {
           setIsTransitioning(false);
+          hideTopBar();
         }, 1000);
-      } else {
-        // Fallback to cookie approach
-        document.cookie = `googtrans=/en/${lang};path=/;domain=${window.location.hostname}`;
-        window.location.reload();
+        return;
       }
-      
-      // Ensure the top bar stays hidden
-      setTimeout(hideTopBar, 300);
+    }
+
+    // Retry logic
+    attempts++;
+    if (attempts < maxRetries) {
+      setTimeout(trySetLanguage, 200);
     } else {
-      // If not initialized yet, reset transitioning state
+      console.warn(`Failed to switch to language: ${lang}.`);
       setIsTransitioning(false);
     }
   };
+
+  trySetLanguage();
+};
 
   return (
     <TranslationContext.Provider value={{ currentLanguage, setLanguage, isTransitioning }}>
